@@ -1,10 +1,10 @@
 @font-face {
     font-family: "iconfont";
     /* Project id 4629624 */
-    src: url('//at.alicdn.com/t/c/font_4629624_2frpmjt8m9.woff2?t=1721663859409') format('woff2'),
-        url('//at.alicdn.com/t/c/font_4629624_2frpmjt8m9.woff?t=1721663859409') format('woff'),
-        url('//at.alicdn.com/t/c/font_4629624_2frpmjt8m9.ttf?t=1721663859409') format('truetype'),
-        url('//at.alicdn.com/t/c/font_4629624_2frpmjt8m9.svg?t=1721663859409#iconfont') format('svg');
+    src: url('//at.alicdn.com/t/c/font_4629624_2j580nu90nn.woff2?t=1721721428396') format('woff2'),
+        url('//at.alicdn.com/t/c/font_4629624_2j580nu90nn.woff?t=1721721428396') format('woff'),
+        url('//at.alicdn.com/t/c/font_4629624_2j580nu90nn.ttf?t=1721721428396') format('truetype'),
+        url('//at.alicdn.com/t/c/font_4629624_2j580nu90nn.svg?t=1721721428396#iconfont') format('svg');
 }
 
 .iconfont {
@@ -13,6 +13,14 @@
     font-style: normal;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale; */
+}
+
+.icon-fenxiang:before {
+    content: "\e680";
+}
+
+.icon-daojishi:before {
+    content: "\e89a";
 }
 
 .icon-down:before {

@@ -19,13 +19,20 @@ module.exports = {
     }, {}),
     extend: {
       backgroundImage: {
-
+        "gradientBubblegum": "linear-gradient(139.73deg, #E5FDFF 0%, #F3EFFF 100%)",
       },
       colors: {
         "white100": "#EBF1F3",
+        "white200": "#F8F7F9",
+        "white300": "#eeeaf4",
+        "white400": "#D7CAEC",
+        "white500": "#F6F6F6",
         "red100": "#CE0E17",
         "red200": "#aa464b",
-        "black100": "#191326"
+        "red300": "#dc5c5c",
+        "red400": "#370b08",
+        "black100": "#191326",
+        "gray100": "#e7e3eb"
       },
       fontSize: ({ theme }) => ({
         ...theme("spacing"),
