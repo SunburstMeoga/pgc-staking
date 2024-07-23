@@ -1,7 +1,6 @@
 import MenuBar from '@/components/menuBar'
 import React, { useState, useEffect } from 'react'
-import contractService from '@/services/contract/contractService';
-import contractABI from '@/services/contract/staking_abi.json'
+import ContractService from '@/services/contract/contractService';
 import Web3 from 'web3';
 function Home() {
   let statusTypeItems = [{ id: 1, title: '进行中' }, { id: 2, title: '已结束' }]
@@ -20,24 +19,27 @@ function Home() {
   let handleSwitch = () => {
     changeSwitchState(switchState = !switchState)
   }
-  const [web3, setWeb3] = useState(null);
+  const [contractService, setContractService] = useState(null);
   const [account, setAccount] = useState('');
+  const [someData, setSomeData] = useState(null);
 
   useEffect(() => {
-    console.log(process.env.NEXT_PUBLIC_USD3_CONTRACT_ADDRESS)
-    // if (typeof window !== 'undefined' && typeof window.ethereum !== 'undefined') {
-    //   // We are in the browser and Metamask is installed
-    //   const web3 = new Web3(window.ethereum);
-    //   setWeb3(web3);
+    const initWeb3 = async () => {
+      if (typeof window !== 'undefined' && typeof window.ethereum !== 'undefined') {
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const web3 = new Web3(window.ethereum);
+        const contractService = new ContractService(web3);
+        setContractService(contractService);
 
-    //   // Request account access if needed
-    //   window.ethereum.request({ method: 'eth_requestAccounts' })
-    //     .then(accounts => {
-    //       setAccount(accounts[0]);
-    //     });
-    // } else {
-    //   console.log('Please install Metamask');
-    // }
+        const account = await contractService.getAccount();
+        setAccount(account);
+        console.log(contractService, account)
+      } else {
+        console.log('Please install Metamask');
+      }
+    };
+
+    initWeb3();
   }, []);
 
   return (
