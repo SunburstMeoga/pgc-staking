@@ -19,29 +19,36 @@ function Home() {
   let handleSwitch = () => {
     changeSwitchState(switchState = !switchState)
   }
-  const [contractService, setContractService] = useState(null);
-  const [account, setAccount] = useState('');
-  const [someData, setSomeData] = useState(null);
-
+  let [contractService, setContractService] = useState(null);
+  let [web3, setWeb3] = useState(null)
   useEffect(() => {
-    const initWeb3 = async () => {
+    const initWeb3 = async () => { //初始化web3
       if (typeof window !== 'undefined' && typeof window.ethereum !== 'undefined') {
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const web3 = new Web3(window.ethereum);
-        const contractService = new ContractService(web3);
-        setContractService(contractService);
+        let web3 = new Web3(window.ethereum)
+        setWeb3(web3 = web3)
+        setContractService(contractService = new ContractService(web3))
 
-        const account = await contractService.getAccount();
-        setAccount(account);
-        console.log(contractService, account)
       } else {
-        console.log('Please install Metamask');
+        console.log('没安装metamask')
       }
-    };
-
+    }
     initWeb3();
   }, []);
+  let staking = async () => { //质押
+    // let approve = await contractService.sendMethod('approve', localStorage.getItem('account'), web3.utils.toWei("1", "ether"))
+    // console.log(approve)
+    try {
+      const result = await contractService.sendMethod('stake', localStorage.getItem('account'), web3.utils.toWei("1", "ether"))
+      console.log(result)
+    } catch (err) {
+      console.log(err)
+    }
 
+  }
+  let handleStaking = (item) => {
+    console.log(item)
+    staking()
+  }
   return (
     <div>
       <MenuBar></MenuBar>
@@ -112,9 +119,13 @@ function Home() {
                       </div>
                     </div>
                     <div className='w-full flex justify-center items-center bg-red100 h-3-0 rounded-2xl text-white mb-1-2'>连接钱包</div>
+
                     <div className='p-1-0 border border-white300 rounded-2xl mb-1-2'>
                       <div className='text-0-8 mb-1-0 font-bold'>启用双币质押</div>
-                      <div className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2'>授权</div>
+                      <div className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2' onClick={() => handleStaking(item)}>
+                        {/* {localStorage.getItem('account') ? '质押' : '未连接钱包'} */}
+                        质押
+                      </div>
                     </div>
 
                     <div className='w-full flex justify-between items-center text-0-8'>

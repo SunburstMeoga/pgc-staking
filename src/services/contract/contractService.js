@@ -1,7 +1,7 @@
 import Web3 from "web3";
 import contractABI from '@/services/contract/staking_abi.json'
 
-class contractService {
+class ContractService {
     constructor(provider) {
         this.web3 = new Web3(provider);
         this.contract = new this.web3.eth.Contract(contractABI, process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS);
@@ -13,15 +13,17 @@ class contractService {
     }
 
     async callMethod(methodName, ...args) {
+
         const method = this.contract.methods[methodName](...args);
         return await method.call();
     }
 
     async sendMethod(methodName, from, ...args) {
+        console.log(methodName, from, ...args)
         const method = this.contract.methods[methodName](...args);
-        const gas = await method.estimateGas({ from });
-        return await method.send({ from, gas });
+        const gasPrice = await this.web3.eth.getGasPrice();
+        return await method.send({ from, gasPrice });
     }
 }
 
-export default contractService
+export default ContractService
