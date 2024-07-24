@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import StakingABI from '@/services/contract/staking_abi.json'
 import ContractService from '@/services/contract/contractService'
 import Web3 from 'web3'
 const MenuBar = () => {
@@ -10,7 +11,7 @@ const MenuBar = () => {
             if (typeof window !== 'undefined' && typeof window.ethereum !== 'undefined') {
                 let web3 = new Web3(window.ethereum)
                 setWeb3(web3 = web3)
-                setContractService(contractService = new ContractService(web3))
+                setContractService(contractService = new ContractService(web3, StakingABI, process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS))
                 getAccount()
             } else {
                 console.log('没安装metamask')
@@ -26,7 +27,7 @@ const MenuBar = () => {
                     localStorage.setItem('account', null)
                 }
 
-                console.log(account)
+                // console.log(account)
             } catch (err) {
                 console.log(err)
             }

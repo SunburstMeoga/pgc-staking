@@ -1,6 +1,8 @@
 import MenuBar from '@/components/menuBar'
 import React, { useState, useEffect } from 'react'
 import ContractService from '@/services/contract/contractService';
+import StakingABI from '@/services/contract/staking_abi.json'
+import ERC20ABI from '@/services/contract/erc20_abi.json'
 import Web3 from 'web3';
 function Home() {
   let statusTypeItems = [{ id: 1, title: '进行中' }, { id: 2, title: '已结束' }]
@@ -19,17 +21,30 @@ function Home() {
   let handleSwitch = () => {
     changeSwitchState(switchState = !switchState)
   }
-  let [contractService, setContractService] = useState(null);
+  let [stakingContractService, setStakingContractService] = useState(null); //质押合约
+  let [WHAHContractService, setHAHContractService] = useState(null); //erc20
+  let [USD3ContractService, setUSD3ContractService] = useState(null);//erc20
+
   let [web3, setWeb3] = useState(null)
   useEffect(() => {
     const initWeb3 = async () => { //初始化web3
       if (typeof window !== 'undefined' && typeof window.ethereum !== 'undefined') {
         let web3 = new Web3(window.ethereum)
         setWeb3(web3 = web3)
-        setContractService(contractService = new ContractService(web3))
-
+        setStakingContractService(stakingContractService = new ContractService(web3, StakingABI, process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS))
+        setHAHContractService(WHAHContractService = new ContractService(web3, ERC20ABI, process.env.NEXT_PUBLIC_WHAH_CONTRACT_ADDRESS))
+        setUSD3ContractService(USD3ContractService = new ContractService(web3, ERC20ABI, process.env.NEXT_PUBLIC_USD3_CONTRACT_ADDRESS))
+        getWHAHAuthStatus()
       } else {
         console.log('没安装metamask')
+      }
+    }
+    const getWHAHAuthStatus = async () => { //获取whah对质押合约的授权状态
+      try {
+        const result = await WHAHContractService.callMethod('allowance', localStorage.getItem('account'), process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS)
+        console.log(result)
+      } catch (err) {
+        console.log(err)
       }
     }
     initWeb3();
@@ -38,17 +53,17 @@ function Home() {
     // let approve = await contractService.sendMethod('approve', localStorage.getItem('account'), web3.utils.toWei("1", "ether"))
     // console.log(approve)
     try {
-      const result = await contractService.sendMethod('stake', localStorage.getItem('account'), web3.utils.toWei("1", "ether"))
+      const result = await stakingContractService.sendMethod('stake', localStorage.getItem('account'), web3.utils.toWei("1", "ether"))
       console.log(result)
     } catch (err) {
       console.log(err)
     }
-
   }
   let handleStaking = (item) => {
     console.log(item)
     staking()
   }
+
   return (
     <div>
       <MenuBar></MenuBar>
