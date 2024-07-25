@@ -179,7 +179,7 @@ function Home() {
                         </div>
                       }
                       {!USD3Allowance && <div onClick={() => handleApproveUSD3()} className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2 ' >
-                        {loadingUSD3Auth ? <svg className='animate-spin h-5 w-5 mr-3 viewBox="0 0 24 24"'></svg> : 'USD3授权'}
+                        {loadingUSD3Auth ? <div className='icon iconfont icon-jiazailoading-A animate-spin' ></div> : 'USD3授权'}
                       </div>}
                       {!WHAHAllowance && <div onClick={() => handleApproveWHAH()} className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2'>
                         WHAH授权
