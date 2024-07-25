@@ -4,12 +4,14 @@ import ContractService from '@/services/contract/contractService';
 import StakingABI from '@/services/contract/staking_abi.json'
 import ERC20ABI from '@/services/contract/erc20_abi.json'
 import Web3 from 'web3';
+import { ethers } from 'ethers';
 function Home() {
   let statusTypeItems = [{ id: 1, title: '进行中' }, { id: 2, title: '已结束' }]
   let nodeList = [{ showMore: false, id: 1 }, { showMore: false, id: 2 }, { showMore: false, id: 3 }, { showMore: false, id: 4 },]
-  let [nodeListItems, changeListItems] = useState(nodeList)
-  let [statusType, changeStatusType] = useState(1)
-  let [switchState, changeSwitchState] = useState(false)
+  let [nodeListItems, changeListItems] = useState(nodeList) //节点列表
+  let [statusType, changeStatusType] = useState(1) //不同状态节点列表
+  let [switchState, changeSwitchState] = useState(false) //是否仅限已质押
+  let [loadingUSD3Auth, setLoadingUSD3Auth] = useState(false)
   let handleStatusType = ({ id }) => {
     changeStatusType(statusType = id)
   }
@@ -24,36 +26,70 @@ function Home() {
   let [stakingContractService, setStakingContractService] = useState(null); //质押合约
   let [WHAHContractService, setHAHContractService] = useState(null); //erc20
   let [USD3ContractService, setUSD3ContractService] = useState(null);//erc20
-
-  let [web3, setWeb3] = useState(null)
+  let [USD3Allowance, setUSD3Allowance] = useState(false) //usd3对staking合约的授权状态
+  let [WHAHAllowance, setWHAHAllowance] = useState(false) //whah对staking合约的授权状态
+  // let [web3, setWeb3] = useState(null)
   useEffect(() => {
     const initWeb3 = async () => { //初始化web3
       if (typeof window !== 'undefined' && typeof window.ethereum !== 'undefined') {
         let web3 = new Web3(window.ethereum)
-        setWeb3(web3 = web3)
+        // setWeb3(web3 = web3)
         setStakingContractService(stakingContractService = new ContractService(web3, StakingABI, process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS))
         setHAHContractService(WHAHContractService = new ContractService(web3, ERC20ABI, process.env.NEXT_PUBLIC_WHAH_CONTRACT_ADDRESS))
         setUSD3ContractService(USD3ContractService = new ContractService(web3, ERC20ABI, process.env.NEXT_PUBLIC_USD3_CONTRACT_ADDRESS))
         getWHAHAuthStatus()
+        getUSD3AuthStatus()
       } else {
         console.log('没安装metamask')
+      }
+    }
+    const getUSD3AuthStatus = async () => { //获取usd3对质押合约的授权状态
+      try {
+        const result = await USD3ContractService.callMethod('allowance', localStorage.getItem('account'), process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS)
+        setUSD3Allowance(result == 0 ? USD3Allowance = false : USD3Allowance = true)
+        console.log(USD3Allowance, result)
+      } catch (err) {
+        console.log(err)
       }
     }
     const getWHAHAuthStatus = async () => { //获取whah对质押合约的授权状态
       try {
         const result = await WHAHContractService.callMethod('allowance', localStorage.getItem('account'), process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS)
-        console.log(result)
+        setWHAHAllowance(result == 0 ? WHAHAllowance = false : WHAHAllowance = true)
+        console.log(WHAHAllowance, result)
       } catch (err) {
         console.log(err)
       }
     }
     initWeb3();
   }, []);
-  let staking = async () => { //质押
-    // let approve = await contractService.sendMethod('approve', localStorage.getItem('account'), web3.utils.toWei("1", "ether"))
-    // console.log(approve)
+  let handleApproveUSD3 = () => { //点击usd3授权按钮
+    setLoadingUSD3Auth(loadingUSD3Auth = true)
+    approveUSD3()
+  }
+  let approveUSD3 = async () => { //usd3授权
     try {
-      const result = await stakingContractService.sendMethod('stake', localStorage.getItem('account'), web3.utils.toWei("1", "ether"))
+      let result = await USD3ContractService.sendMethod('approve', localStorage.getItem('account'), process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS, 0)
+      // const result = await stakingContractService.sendMethod('stake', localStorage.getItem('account'), web3.utils.toWei("1", "ether"))
+      setUSD3Allowance(USD3Allowance = true)
+      setLoadingUSD3Auth(loadingUSD3Auth = false)
+      console.log(result)
+    } catch (err) {
+      console.log(err)
+      setLoadingUSD3Auth(loadingUSD3Auth = false)
+    }
+  }
+  let handleApproveWHAH = () => { //点击whah授权按钮
+    approveWHAH()
+  }
+  let approveWHAH = async () => { //usd3授权
+    let result = await WHAHContractService.sendMethod('approve', localStorage.getItem('account'), process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS, 0)
+    setWHAHAllowance(WHAHAllowance = true)
+    console.log(result)
+  }
+  let staking = async () => { //质押
+    try {
+      const result = await stakingContractService.sendMethod('stake', localStorage.getItem('account'))
       console.log(result)
     } catch (err) {
       console.log(err)
@@ -137,10 +173,23 @@ function Home() {
 
                     <div className='p-1-0 border border-white300 rounded-2xl mb-1-2'>
                       <div className='text-0-8 mb-1-0 font-bold'>启用双币质押</div>
-                      <div className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2' onClick={() => handleStaking(item)}>
-                        {/* {localStorage.getItem('account') ? '质押' : '未连接钱包'} */}
-                        质押
+                      {
+                        USD3Allowance && WHAHAllowance && <div className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2' onClick={() => handleStaking(item)}>
+                          质押
+                        </div>
+                      }
+                      {!USD3Allowance && <div onClick={() => handleApproveUSD3()} className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2 ' >
+                        {loadingUSD3Auth ? <svg className='animate-spin h-5 w-5 mr-3 viewBox="0 0 24 24"'></svg> : 'USD3授权'}
+                      </div>}
+                      {!WHAHAllowance && <div onClick={() => handleApproveWHAH()} className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2'>
+                        WHAH授权
+                      </div>}
+                      {/* <div onClick={() => handleApproveUSD3()} className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2' >
+                        USD3授权
                       </div>
+                      <div onClick={() => handleApproveWHAH()} className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2'>
+                        WHAH授权
+                      </div> */}
                     </div>
 
                     <div className='w-full flex justify-between items-center text-0-8'>
