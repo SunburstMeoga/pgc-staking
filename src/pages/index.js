@@ -4,14 +4,18 @@ import ContractService from '@/services/contract/contractService';
 import StakingABI from '@/services/contract/staking_abi.json'
 import ERC20ABI from '@/services/contract/erc20_abi.json'
 import Web3 from 'web3';
+import BigNumber from 'bignumber.js';
 import { ethers } from 'ethers';
 function Home() {
   let statusTypeItems = [{ id: 1, title: '进行中' }, { id: 2, title: '已结束' }]
-  let nodeList = [{ showMore: false, id: 1 }, { showMore: false, id: 2 }, { showMore: false, id: 3 }, { showMore: false, id: 4 },]
-  let [nodeListItems, changeListItems] = useState(nodeList) //节点列表
+  let [nodeListItems, changeListItems] = useState([]) //节点列表
   let [statusType, changeStatusType] = useState(1) //不同状态节点列表
   let [switchState, changeSwitchState] = useState(false) //是否仅限已质押
   let [loadingUSD3Auth, setLoadingUSD3Auth] = useState(false)
+  let [loadingWHAHAuth, setLoadingWHAHAuth] = useState(false)
+  let [loadingStaking, setLoadingStaking] = useState(false)
+  let [loadingUnStaking, setLoadingUnStaking] = useState(false)
+  let [loadingWithdraw, setLoadingWithdraw] = useState(false)
   let handleStatusType = ({ id }) => {
     changeStatusType(statusType = id)
   }
@@ -28,17 +32,23 @@ function Home() {
   let [USD3ContractService, setUSD3ContractService] = useState(null);//erc20
   let [USD3Allowance, setUSD3Allowance] = useState(false) //usd3对staking合约的授权状态
   let [WHAHAllowance, setWHAHAllowance] = useState(false) //whah对staking合约的授权状态
-  // let [web3, setWeb3] = useState(null)
+  let [web3, setWeb3] = useState(null)
+  let [pgcRemaining, setPGCRemaining] = useState(0) //PGC 提取剩余时间（秒）。
+  let [usd3Remaining, setUSD3Remaining] = useState(0) //WHAH/转换后的 USD3 提取剩余时间（秒）。
+
   useEffect(() => {
     const initWeb3 = async () => { //初始化web3
       if (typeof window !== 'undefined' && typeof window.ethereum !== 'undefined') {
         let web3 = new Web3(window.ethereum)
-        // setWeb3(web3 = web3)
+        setWeb3(web3 = web3)
         setStakingContractService(stakingContractService = new ContractService(web3, StakingABI, process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS))
         setHAHContractService(WHAHContractService = new ContractService(web3, ERC20ABI, process.env.NEXT_PUBLIC_WHAH_CONTRACT_ADDRESS))
         setUSD3ContractService(USD3ContractService = new ContractService(web3, ERC20ABI, process.env.NEXT_PUBLIC_USD3_CONTRACT_ADDRESS))
         getWHAHAuthStatus()
         getUSD3AuthStatus()
+        getCurrentRewards()
+        getRemainingLockingPeriod()
+        // stakes()
       } else {
         console.log('没安装metamask')
       }
@@ -64,13 +74,14 @@ function Home() {
     initWeb3();
   }, []);
   let handleApproveUSD3 = () => { //点击usd3授权按钮
+    if (loadingUSD3Auth) return
+    console.log('object')
     setLoadingUSD3Auth(loadingUSD3Auth = true)
     approveUSD3()
   }
   let approveUSD3 = async () => { //usd3授权
     try {
-      let result = await USD3ContractService.sendMethod('approve', localStorage.getItem('account'), process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS, 0)
-      // const result = await stakingContractService.sendMethod('stake', localStorage.getItem('account'), web3.utils.toWei("1", "ether"))
+      let result = await USD3ContractService.sendMethod('approve', localStorage.getItem('account'), process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS, ethers.MaxUint256)
       setUSD3Allowance(USD3Allowance = true)
       setLoadingUSD3Auth(loadingUSD3Auth = false)
       console.log(result)
@@ -80,37 +91,118 @@ function Home() {
     }
   }
   let handleApproveWHAH = () => { //点击whah授权按钮
+    if (loadingWHAHAuth) return
+    console.log('object')
+    setLoadingWHAHAuth(loadingWHAHAuth = true)
     approveWHAH()
   }
-  let approveWHAH = async () => { //usd3授权
-    let result = await WHAHContractService.sendMethod('approve', localStorage.getItem('account'), process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS, 0)
-    setWHAHAllowance(WHAHAllowance = true)
-    console.log(result)
+  let approveWHAH = async () => { //whah授权
+    try {
+      let result = await WHAHContractService.sendMethod('approve', localStorage.getItem('account'), process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS, ethers.MaxUint256)
+      // const result = await stakingContractService.sendMethod('stake', localStorage.getItem('account'), web3.utils.toWei("1", "ether"))
+      setWHAHAllowance(WHAHAllowance = true)
+      setLoadingWHAHAuth(loadingWHAHAuth = false)
+      console.log(result)
+    } catch (err) {
+      console.log(err)
+      setLoadingWHAHAuth(loadingWHAHAuth = false)
+    }
   }
   let staking = async () => { //质押
     try {
-      const result = await stakingContractService.sendMethod('stake', localStorage.getItem('account'))
+      const result = await stakingContractService.sendMethod('stake', localStorage.getItem('account'), web3.utils.toWei("20", "ether"))
       console.log(result)
+      setLoadingStaking(loadingStaking = false)
+    } catch (err) {
+      console.log(err)
+      setLoadingStaking(loadingStaking = false)
+    }
+  }
+  let unstake = async () => { //用户取消质押
+    try {
+      const result = await stakingContractService.sendMethod('unstake', localStorage.getItem('account'))
+      setLoadingUnStaking(loadingUnStaking = false)
+      console.log(result)
+    } catch (err) {
+      console.log(err)
+      setLoadingUnStaking(loadingUnStaking = false)
+    }
+  }
+  let handleStaking = (item) => { //点击质押按钮
+    console.log(item)
+    setLoadingStaking(loadingStaking = true)
+    staking()
+  }
+  let handleUnStaking = (item) => { //点击收割按钮
+    setLoadingUnStaking(loadingUnStaking = true)
+    unstake()
+  }
+  let handleWithdraw = () => { //点击提现按钮
+    setLoadingWithdraw(loadingWithdraw = true)
+    withdraw()
+  }
+  let withdraw = async () => {
+    try {
+      const result = await stakingContractService.sendMethod('withdraw', localStorage.getItem('account'))
+      console.log(result)
+      setLoadingWithdraw(loadingWithdraw = false)
+    } catch (err) {
+      console.log(err)
+      setLoadingWithdraw(loadingWithdraw = false)
+
+    }
+  }
+  let getCurrentRewards = async () => { //已赚取的pgc
+    console.log(ethers)
+    try {
+      let result = await stakingContractService.callMethod('getCurrentRewards', localStorage.getItem('account'))
+      let myStakes = await stakingContractService.callMethod('stakes', localStorage.getItem('account'))
+      let newItem = { showMore: false, currentRewards: new BigNumber(result.toString()).toString(), myStakes: new BigNumber(myStakes.pgcAmount.toString()).toString(), staked: !myStakes.unstaked }
+      changeListItems(item => [...item, newItem])
+
     } catch (err) {
       console.log(err)
     }
   }
-  let handleStaking = (item) => {
-    console.log(item)
-    staking()
+
+  let getRemainingLockingPeriod = async () => { //剩余天数
+    try {
+      let result = await stakingContractService.callMethod('getRemainingLockingPeriod', localStorage.getItem('account'))
+      setPGCRemaining(pgcRemaining = result[0])
+      setUSD3Remaining(usd3Remaining = result[1])
+      console.log(pgcRemaining, usd3Remaining)
+      console.log('剩余天数', result)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  let stakes = async () => { //我的质押
+    try {
+      let result = await stakingContractService.callMethod('stakes', localStorage.getItem('account'))
+      let newItem = { showMore: false, myStakes: new BigNumber(result.pgcAmount.toString()).toString() }
+      changeListItems(item => [...item, newItem])
+      // console.log(result)
+
+    } catch (err) {
+      console.log(err)
+    }
+
   }
 
   return (
     <div>
       <MenuBar></MenuBar>
       <div className='flex flex-col justify-start items-center bg-gradientBubblegum'>
-        <div className='w-23-8'>
-          <div className='w-full py-0-5 text-red300 text-3-0 text-center'>PGChain双币质押</div>
-          <div className='text-red400 text-1-2 mb-1-5'>
-            <div className=''>通过质押货币，轻松赚取收益。</div>
-            <div className='-mt-0-5'>低风险，高年华收益率，您的最佳选择。</div>
+        <div className='w-23-8 xl:w-full xl:px-18-0 xl:flex xl:justify-between xl:items-start xl:py-2-0'>
+          <div className=''>
+            <div className='w-full py-0-5 text-red300 text-3-0 text-center xl:text-4-0'>PGChain双币质押</div>
+            <div className='text-red400 text-1-2 mb-1-5 xl:text-1-3'>
+              <div className=''>通过质押货币，轻松赚取收益。</div>
+              <div className='-mt-0-5'>低风险，高年化收益率，您的最佳选择。</div>
+            </div>
           </div>
-          <div className='w-full rounded-3xl bg-white text-red200 px-1-6 py-0-5 mb-2-0'>
+          <div className='w-full rounded-3xl bg-white text-red200 px-1-6 py-0-5 mb-2-0 xl:w-18-5'>
             <div className='text-0-8'>PGChain双币质押计划</div>
             <div className='text-red400 text-1-3 border-b border-gray100 mb-0-4 pb-0-2'>年化收益率高达26.43%</div>
             <div className='text-0-7 mb-0-6'>
@@ -122,18 +214,23 @@ function Home() {
             <div className='text-0-7 mb-1-0'>
               此外，解锁其他权益，例如投票激励、收益助推、IFO 等…
             </div>
-            <div className='w-full h-3-0 text-white bg-red200 flex justify-center items-center rounded-2xl mb-0-6'>前往质押</div>
+            <div className='w-full h-3-0 text-white bg-red200 flex justify-center items-center rounded-2xl mb-0-6' onClick={() => handleWithdraw()}>
+              {loadingWithdraw ? <div className='icon iconfont icon-jiazailoading-A animate-spin'></div> : '提现'}
+            </div>
+            {/* <div className='w-full h-3-0 border-2  border-red200 text-red200 flex justify-center items-center rounded-2xl mb-0-6' onClick={() => handleWithdraw()}>
+              {loadingWithdraw ? <div className='icon iconfont icon-jiazailoading-A animate-spin'></div> : '提现USD3'}
+            </div> */}
           </div>
         </div>
         <div className='bg-white200 w-full flex flex-col justify-center items-center pt-1-8 pb-2-0'>
-          <div className='flex flex-col justify-center items-center w-23-8'>
+          <div className='flex flex-col justify-center items-center w-23-8 xl:w-full xl:px-18-0'>
             <div className='flex justify-between items-center w-full mb-2-4'>
               <div className='flex justify-start rounded-full bg-white300 border border-white400'>
-                {statusTypeItems.map((item, index) => {
+                {/* {statusTypeItems.map((item, index) => {
                   return <div key={index} onClick={() => handleStatusType(item)} className={`px-1-4 py-0-3 text-1-0 ${statusType === item.id ? 'text-white bg-red200 rounded-full' : 'text-red200 bg-transparent'}`}>
                     {item.title}
                   </div>
-                })}
+                })} */}
               </div>
               <div className='flex justify-end items-center text-red400'>
                 <div onClick={() => handleSwitch()} className={`p-0-2 relative w-3-0 h-1-6 rounded-full mr-0-2 duration-500 transition ease-in-out ${switchState ? 'justify-end bg-red100' : 'justify-start bg-white300'}`}>
@@ -149,65 +246,64 @@ function Home() {
                     <div className='font-bold text-1-0 text-red400'>{`节点${index + 1}`}</div>
                     <div className='text-0-7'>
                       <div className='text-red400'>已赚取的PGC</div>
-                      <div> 0 PGC</div>
+                      <div> {item.currentRewards} PGC</div>
                     </div>
                     <div className='text-0-7'>
                       <div className='text-red400'>质押总计</div>
                       <div> 0 PGC</div>
                     </div>
                     <div className='text-0-7'>
-                      <div className='text-red400'>质押剩余量</div>
-                      <div>1,000,000</div>
+                      <div className='text-red400'>我的质押</div>
+                      <div>{item.myStakes}</div>
                     </div>
                     <div className={`icon iconfont icon-down text-0-6 duration-500 transition ease-in-out ${item.showMore ? 'rotate-180' : ''}`} onClick={() => handleShowMore(item)}></div>
                   </div>
-                  <div className={`bg-white500 w-full duration-500 transition ease-in-out border border-red20  ${item.showMore ? 'scale-y-100 h-fit p-1-0' : 'scale-y-0 h-0-1'}`}>
-                    <div className='p-1-0 border border-white300 rounded-2xl mb-1-2'>
+                  <div className={`bg-white500 w-full duration-500 transition ease-in-out border border-red20 xl:flex xl:justify-between  ${item.showMore ? 'scale-y-100 h-fit p-1-0' : 'scale-y-0 h-0-1'}`}>
+                    <div className='p-1-0 border border-white300 rounded-2xl mb-1-2 xl:w-32-0'>
                       <div className='text-0-8 mb-0-6 font-bold'>已赚取PGC</div>
                       <div className='flex justify-between items-center'>
-                        <div className='text-red400 font-bold text-2-0'>0</div>
-                        <div className='bg-red100 text-white rounded-xl px-1-0 py-0-4'>收割</div>
-                      </div>
-                    </div>
-                    <div className='w-full flex justify-center items-center bg-red100 h-3-0 rounded-2xl text-white mb-1-2'>连接钱包</div>
-
-                    <div className='p-1-0 border border-white300 rounded-2xl mb-1-2'>
-                      <div className='text-0-8 mb-1-0 font-bold'>启用双币质押</div>
-                      {
-                        USD3Allowance && WHAHAllowance && <div className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2' onClick={() => handleStaking(item)}>
-                          质押
+                        <div className='text-red400 font-bold text-2-0'>{item.currentRewards}</div>
+                        <div className='bg-red100 text-white rounded-xl px-1-0 py-0-4' onClick={() => handleUnStaking(item)}>
+                          {loadingUnStaking ? <div className='icon iconfont icon-jiazailoading-A animate-spin'></div> : '收割'}
                         </div>
-                      }
-                      {!USD3Allowance && <div onClick={() => handleApproveUSD3()} className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2 ' >
-                        {loadingUSD3Auth ? <div className='icon iconfont icon-jiazailoading-A animate-spin' ></div> : 'USD3授权'}
-                      </div>}
-                      {!WHAHAllowance && <div onClick={() => handleApproveWHAH()} className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2'>
-                        WHAH授权
-                      </div>}
-                      {/* <div onClick={() => handleApproveUSD3()} className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2' >
-                        USD3授权
                       </div>
-                      <div onClick={() => handleApproveWHAH()} className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2'>
-                        WHAH授权
-                      </div> */}
                     </div>
+                    {/* <div className='w-full flex justify-center items-center bg-red100 h-3-0 rounded-2xl text-white mb-1-2'>连接钱包</div> */}
 
-                    <div className='w-full flex justify-between items-center text-0-8'>
+                    {
+                      item.staked && <div className='p-1-0 border border-white300 rounded-2xl mb-1-2 xl:w-32-0'>
+                        <div className='text-0-8 mb-1-0 font-bold'>启用双币质押</div>
+                        {
+                          USD3Allowance && WHAHAllowance && <div className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2' onClick={() => handleStaking(item)}>
+                            {loadingStaking ? <div className='icon iconfont icon-jiazailoading-A animate-spin'></div> : '质押'}
+                          </div>
+                        }
+                        {!USD3Allowance && <div onClick={() => handleApproveUSD3()} className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2 ' >
+                          {loadingUSD3Auth ? <div className='icon iconfont icon-jiazailoading-A animate-spin' ></div> : 'USD3授权'}
+                        </div>}
+                        {!WHAHAllowance && <div onClick={() => handleApproveWHAH()} className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2'>
+                          {loadingWHAHAuth ? <div className='icon iconfont icon-jiazailoading-A animate-spin'></div> : 'WHAH授权'}
+                        </div>}
+                      </div>
+
+                    }
+
+                    {/* <div className='w-full flex justify-between items-center text-0-8'>
                       <div className='text-red400'>APR:</div>
                       <div className='text-red200'>32.1%</div>
-                    </div>
-                    <div className='w-full flex justify-between items-center text-0-8'>
-                      <div className='text-red400'>质押剩余量:</div>
+                    </div> */}
+                    {/* <div className='w-full flex justify-between items-center text-0-8'>
+                      <div className='text-red400'>我的质押:</div>
                       <div className='text-red200'>1,000,000</div>
-                    </div>
-                    <div className='w-full flex justify-between items-center text-0-8'>
+                    </div> */}
+                    {/* <div className='w-full flex justify-between items-center text-0-8'>
                       <div className='text-red400'>结束倒计时:</div>
                       <div className='text-red200 flex justify-end items-center'>
                         <div className='mr-0-2'>15天</div>
                         <div className='icon iconfont icon-daojishi'></div>
                       </div>
-                    </div>
-                    <div className='flex justify-end items-center text-red100'>
+                    </div> */}
+                    {/* <div className='flex justify-end items-center text-red100'>
                       <div className='mr-0-4 text-0-8 font-bold underline'>查看代币信息</div>
                       <div className='icon iconfont icon-fenxiang'></div>
                     </div>
@@ -224,7 +320,7 @@ function Home() {
                         <div className='icon iconfont icon-shuaxin mr-0-8'></div>
                         <div className='text-0-8'>手动</div>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               })}
