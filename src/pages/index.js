@@ -5,7 +5,9 @@ import StakingABI from '@/services/contract/staking_abi.json'
 import ERC20ABI from '@/services/contract/erc20_abi.json'
 import Web3 from 'web3';
 import BigNumber from 'bignumber.js';
+import DialogComponent from '@/components/dialog';
 import { ethers } from 'ethers';
+
 function Home() {
   let statusTypeItems = [{ id: 1, title: '进行中' }, { id: 2, title: '已结束' }]
   let [nodeListItems, changeListItems] = useState([]) //节点列表
@@ -35,7 +37,19 @@ function Home() {
   let [web3, setWeb3] = useState(null)
   let [pgcRemaining, setPGCRemaining] = useState(0) //PGC 提取剩余时间（秒）。
   let [usd3Remaining, setUSD3Remaining] = useState(0) //WHAH/转换后的 USD3 提取剩余时间（秒）。
+  let [isDialogVisible, setDialogVisible] = useState(false);
+  let [dialogTitle, setDialogTitle] = useState('提示')
+  let [dialogContent, setDialogContent] = useState('内容')
+  const openDialog = () => setDialogVisible(true);
+  const handleDialogClose = () => {
+    console.log('Dialog closed');
 
+    // Perform other actions if needed
+  };
+
+  const handleClose = () => {
+    setDialogVisible(false);
+  };
   useEffect(() => {
     const initWeb3 = async () => { //初始化web3
       if (typeof window !== 'undefined' && typeof window.ethereum !== 'undefined') {
@@ -84,10 +98,16 @@ function Home() {
       let result = await USD3ContractService.sendMethod('approve', localStorage.getItem('account'), process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS, ethers.MaxUint256)
       setUSD3Allowance(USD3Allowance = true)
       setLoadingUSD3Auth(loadingUSD3Auth = false)
+      setDialogTitle(dialogTitle = '成功')
+      setDialogContent(dialogContent = '已成功授权。')
+      openDialog()
       console.log(result)
     } catch (err) {
       console.log(err)
       setLoadingUSD3Auth(loadingUSD3Auth = false)
+      setDialogTitle(dialogTitle = '失败')
+      setDialogContent(dialogContent = '授权失败，请重试')
+      openDialog()
     }
   }
   let handleApproveWHAH = () => { //点击whah授权按钮
@@ -102,10 +122,16 @@ function Home() {
       // const result = await stakingContractService.sendMethod('stake', localStorage.getItem('account'), web3.utils.toWei("1", "ether"))
       setWHAHAllowance(WHAHAllowance = true)
       setLoadingWHAHAuth(loadingWHAHAuth = false)
+      setDialogTitle(dialogTitle = '成功')
+      setDialogContent(dialogContent = '已成功授权。')
+      openDialog()
       console.log(result)
     } catch (err) {
       console.log(err)
       setLoadingWHAHAuth(loadingWHAHAuth = false)
+      setDialogTitle(dialogTitle = '失败')
+      setDialogContent(dialogContent = '授权失败，请重试')
+      openDialog()
     }
   }
   let staking = async () => { //质押
@@ -113,19 +139,31 @@ function Home() {
       const result = await stakingContractService.sendMethod('stake', localStorage.getItem('account'), web3.utils.toWei("20", "ether"))
       console.log(result)
       setLoadingStaking(loadingStaking = false)
+      setDialogTitle(dialogTitle = '成功')
+      setDialogContent(dialogContent = '已成功质押。')
+      openDialog()
     } catch (err) {
       console.log(err)
       setLoadingStaking(loadingStaking = false)
+      setDialogTitle(dialogTitle = '失败')
+      setDialogContent(dialogContent = '质押失败，请重试。')
+      openDialog()
     }
   }
   let unstake = async () => { //用户取消质押
     try {
       const result = await stakingContractService.sendMethod('unstake', localStorage.getItem('account'))
       setLoadingUnStaking(loadingUnStaking = false)
+      setDialogTitle(dialogTitle = '成功')
+      setDialogContent(dialogContent = '已成功收割。')
+      openDialog()
       console.log(result)
     } catch (err) {
       console.log(err)
       setLoadingUnStaking(loadingUnStaking = false)
+      setDialogTitle(dialogTitle = '失败')
+      setDialogContent(dialogContent = '收割失败，您尚未质押PGC')
+      openDialog()
     }
   }
   let handleStaking = (item) => { //点击质押按钮
@@ -146,10 +184,17 @@ function Home() {
       const result = await stakingContractService.sendMethod('withdraw', localStorage.getItem('account'))
       console.log(result)
       setLoadingWithdraw(loadingWithdraw = false)
+      setDialogTitle(dialogTitle = '成功')
+      setDialogContent(dialogContent = '已经资产提现至您的钱包。')
+
+      openDialog()
     } catch (err) {
       console.log(err)
       setLoadingWithdraw(loadingWithdraw = false)
+      setDialogTitle(dialogTitle = '无法提现')
+      setDialogContent(dialogContent = '尚未取消质押，无法提现。')
 
+      openDialog()
     }
   }
   let getCurrentRewards = async () => { //已赚取的pgc
@@ -193,10 +238,17 @@ function Home() {
   return (
     <div>
       <MenuBar></MenuBar>
+      <DialogComponent
+        isVisible={isDialogVisible}
+        title={dialogTitle}
+        content={<p>{dialogContent}</p>}
+        onClose={handleClose}
+        closeDialog={handleDialogClose}
+      />
       <div className='flex flex-col justify-start items-center bg-gradientBubblegum'>
         <div className='w-23-8 xl:w-full xl:px-18-0 xl:flex xl:justify-between xl:items-start xl:py-2-0'>
           <div className=''>
-            <div className='w-full py-0-5 text-red300 text-3-0 text-center xl:text-4-0'>PGChain双币质押</div>
+            <div className='w-full py-0-5 text-red300 text-2-9 text-center xl:text-4-0'>PGChain双币质押</div>
             <div className='text-red400 text-1-2 mb-1-5 xl:text-1-3'>
               <div className=''>通过质押货币，轻松赚取收益。</div>
               <div className='-mt-0-5'>低风险，高年化收益率，您的最佳选择。</div>
