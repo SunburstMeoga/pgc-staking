@@ -266,7 +266,7 @@ function Home() {
             <div className='text-0-7 mb-1-0'>
               此外，解锁其他权益，例如投票激励、收益助推、IFO 等…
             </div>
-            <div className='w-full h-3-0 text-white bg-red200 flex justify-center items-center rounded-2xl mb-0-6' onClick={() => handleWithdraw()}>
+            <div className='w-full h-3-0 text-white bg-red200 flex justify-center items-center rounded-2xl mb-0-6 cursor-pointer' onClick={() => handleWithdraw()}>
               {loadingWithdraw ? <div className='icon iconfont icon-jiazailoading-A animate-spin'></div> : '提现'}
             </div>
             {/* <div className='w-full h-3-0 border-2  border-red200 text-red200 flex justify-center items-center rounded-2xl mb-0-6' onClick={() => handleWithdraw()}>
@@ -315,7 +315,7 @@ function Home() {
                       <div className='text-0-8 mb-0-6 font-bold'>已赚取PGC</div>
                       <div className='flex justify-between items-center'>
                         <div className='text-red400 font-bold text-2-0'>{item.currentRewards}</div>
-                        <div className='bg-red100 text-white rounded-xl px-1-0 py-0-4' onClick={() => handleUnStaking(item)}>
+                        <div className='bg-red100 text-white rounded-xl px-1-0 py-0-4 cursor-pointer' onClick={() => handleUnStaking(item)}>
                           {loadingUnStaking ? <div className='icon iconfont icon-jiazailoading-A animate-spin'></div> : '收割'}
                         </div>
                       </div>
@@ -326,7 +326,7 @@ function Home() {
                       item.staked && <div className='p-1-0 border border-white300 rounded-2xl mb-1-2 xl:w-32-0'>
                         <div className='text-0-8 mb-1-0 font-bold'>启用双币质押</div>
                         {
-                          USD3Allowance && WHAHAllowance && <div className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2' onClick={() => handleStaking(item)}>
+                          USD3Allowance && WHAHAllowance && <div className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2 hover:bg-red-500 hover:text-white transition-colors duration-300 cursor-pointer' onClick={() => handleStaking(item)}>
                             {loadingStaking ? <div className='icon iconfont icon-jiazailoading-A animate-spin'></div> : '质押'}
                           </div>
                         }
