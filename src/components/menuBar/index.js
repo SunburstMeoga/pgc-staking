@@ -88,7 +88,7 @@ const MenuBar = () => {
                         <div className='rounded-full flex justify-center items-center border-red100 text-red100 w-1-7 h-1-7 border-2 bg-white xl:w-2-2 xl:h-2-2'>
                             <div className='icon iconfont icon-qianbao text-1-0'></div>
                         </div>
-                        <div className=' text-black100 text-0-6 ml-0-4 text-1-2'>{accountAddress}</div>
+                        <div className=' text-black100 text-0-6 ml-0-4 xl:text-1-2'>{accountAddress}</div>
                     </div>
                 </div> : <div onClick={() => { loginAccount() }} className='px-0-8 py-0-2 bg-red100 rounded-full text-white text-0-8'>连接钱包</div>}
 
