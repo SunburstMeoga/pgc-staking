@@ -1,6 +1,6 @@
 import "@/styles/globals.css";
 import "@/styles/iconfont.css"
-import 'antd-mobile/es/global';
+// import 'antd-mobile/es/global';
 import React, { useEffect } from 'react';
 
 export default function App({ Component, pageProps }) {
