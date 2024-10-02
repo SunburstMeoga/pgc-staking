@@ -136,7 +136,7 @@ function Home() {
   }
   let staking = async () => { //质押
     try {
-      const result = await stakingContractService.sendMethod('stake', localStorage.getItem('account'), web3.utils.toWei("20", "ether"))
+      const result = await stakingContractService.sendMethod('stake', localStorage.getItem('account'), web3.utils.toWei("1", "ether"))
       console.log(result)
       setLoadingStaking(loadingStaking = false)
       setDialogTitle(dialogTitle = '成功')
@@ -201,9 +201,16 @@ function Home() {
     console.log(ethers)
     try {
       let result = await stakingContractService.callMethod('getCurrentRewards', localStorage.getItem('account'))
-      let myStakes = await stakingContractService.callMethod('stakes', localStorage.getItem('account'))
-      let newItem = { showMore: false, currentRewards: new BigNumber(result.toString()).toString(), myStakes: new BigNumber(myStakes.pgcAmount.toString()).toString(), staked: !myStakes.unstaked }
-      changeListItems(item => [...item, newItem])
+
+      console.log(result,)
+      if (result) {
+        let myStakes = await stakingContractService.callMethod('stakes', localStorage.getItem('account'))
+        let newItem = { showMore: false, currentRewards: new BigNumber(result.toString()).toString(), myStakes: new BigNumber(myStakes.pgcAmount.toString()).toString(), staked: !myStakes.unstaked }
+        changeListItems(item => [...item, newItem])
+      } else {
+        let newItem = { showMore: false, currentRewards: 0, myStakes: 0, staked: true }
+        changeListItems(item => [...item, newItem])
+      }
 
     } catch (err) {
       console.log(err)
@@ -213,10 +220,14 @@ function Home() {
   let getRemainingLockingPeriod = async () => { //剩余天数
     try {
       let result = await stakingContractService.callMethod('getRemainingLockingPeriod', localStorage.getItem('account'))
-      setPGCRemaining(pgcRemaining = result[0])
-      setUSD3Remaining(usd3Remaining = result[1])
-      console.log(pgcRemaining, usd3Remaining)
+
       console.log('剩余天数', result)
+      if (result) {
+        setPGCRemaining(pgcRemaining = result[0])
+        setUSD3Remaining(usd3Remaining = result[1])
+        console.log(pgcRemaining, usd3Remaining)
+      }
+
     } catch (err) {
       console.log(err)
     }
