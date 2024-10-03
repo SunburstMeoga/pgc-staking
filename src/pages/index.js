@@ -35,7 +35,7 @@ function Home() {
   let [USD3Allowance, setUSD3Allowance] = useState(false) //usd3对staking合约的授权状态
   let [WHAHAllowance, setWHAHAllowance] = useState(false) //whah对staking合约的授权状态
   let [web3, setWeb3] = useState(null)
-  let [pgcRemaining, setPGCRemaining] = useState(0) //PGC 提取剩余时间（秒）。
+  let [pgcRemaining, setPGCRemaining] = useState(null) //PGC 提取剩余时间（秒）。
   let [usd3Remaining, setUSD3Remaining] = useState(0) //WHAH/转换后的 USD3 提取剩余时间（秒）。
   let [isDialogVisible, setDialogVisible] = useState(false);
   let [dialogTitle, setDialogTitle] = useState('提示')
@@ -354,18 +354,18 @@ function Home() {
                     {/* <div className='w-full flex justify-between items-center text-0-8'>
                       <div className='text-red400'>APR:</div>
                       <div className='text-red200'>32.1%</div>
-                    </div> */}
-                    {/* <div className='w-full flex justify-between items-center text-0-8'>
+                    </div>
+                    <div className='w-full flex justify-between items-center text-0-8'>
                       <div className='text-red400'>我的质押:</div>
                       <div className='text-red200'>1,000,000</div>
                     </div> */}
-                    {/* <div className='w-full flex justify-between items-center text-0-8'>
+                    {pgcRemaining && <div className='w-full flex justify-between items-center text-0-8'>
                       <div className='text-red400'>结束倒计时:</div>
                       <div className='text-red200 flex justify-end items-center'>
                         <div className='mr-0-2'>15天</div>
                         <div className='icon iconfont icon-daojishi'></div>
                       </div>
-                    </div> */}
+                    </div>}
                     {/* <div className='flex justify-end items-center text-red100'>
                       <div className='mr-0-4 text-0-8 font-bold underline'>查看代币信息</div>
                       <div className='icon iconfont icon-fenxiang'></div>
@@ -377,8 +377,8 @@ function Home() {
                     <div className='flex justify-end items-center text-red100 mb-0-4'>
                       <div className='mr-0-4 text-0-8 font-bold underline'>查看合约</div>
                       <div className='icon iconfont icon-fenxiang '></div>
-                    </div>
-                    <div className='flex justify-start items-center'>
+                    </div> */}
+                    {/* <div className='flex justify-start items-center'>
                       <div className='border border-red200 rounded-full flex justify-start items-center px-0-6 text-red200'>
                         <div className='icon iconfont icon-shuaxin mr-0-8'></div>
                         <div className='text-0-8'>手动</div>
