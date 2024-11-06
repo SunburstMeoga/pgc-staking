@@ -12,24 +12,23 @@ class ContractService {
     }
 
     async callMethod(methodName, ...args) {
-        console.log("Calling method:", methodName);
+        console.log(methodName, ...args)
         const method = this.contract.methods[methodName](...args);
         return await method.call();
     }
 
     async sendMethod(methodName, from, ...args) {
-        console.log(methodName, from, ...args)
+        // console.log(methodName, from, ...args)
         const method = this.contract.methods[methodName](...args);
-        const gas = await method.estimateGas({ from, value }); // 包含 value
+        const gas = await method.estimateGas({ from });
         const gasPrice = await this.web3.eth.getGasPrice();
+
         return await method.send({
             from,
-            value,    // 传递 `msg.value`，默认是 0
             gas,
             gasPrice
         });
     }
-
 }
 
 export default ContractService
