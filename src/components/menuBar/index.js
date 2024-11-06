@@ -86,9 +86,9 @@ const MenuBar = () => {
     const loginAccount = async () => {
         try {
             let account = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            setAccount(hasAccount = true)
+            setAccount(true)
             localStorage.setItem('account', account[0])
-            setAccountAddress(accountAddress = formateAddress(localStorage.getItem('account'), 4))
+            setAccountAddress(formateAddress(localStorage.getItem('account'), 4))
             console.log(accountAddress)
             window.location.reload()
         } catch (err) {
