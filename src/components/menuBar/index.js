@@ -13,8 +13,8 @@ const MenuBar = () => {
     const [hasAccount, setHasAccount] = useState(false);
     const [accountAddress, setAccountAddress] = useState('');
     const [isDialogVisible, setDialogVisible] = useState(false);
-    let [dialogTitle, setDialogTitle] = useState('提示')
-    let [dialogContent, setDialogContent] = useState('内容')
+    const [dialogTitle, setDialogTitle] = useState('提示')
+    const [dialogContent, setDialogContent] = useState('内容')
     const openDialog = () => setDialogVisible(true);
     const handleDialogClose = () => {
         console.log('Dialog closed');
