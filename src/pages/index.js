@@ -19,6 +19,19 @@ function Home() {
   let [loadingUnStaking, setLoadingUnStaking] = useState(false)
   let [loadingWithdraw, setLoadingWithdraw] = useState(false)
   let tokenTypes = [{ title: 'USD3', id: 1 }, { title: 'WHAH', id: 2 }]
+  let [isDialogVisible, setDialogVisible] = useState(false);
+  let [dialogTitle, setDialogTitle] = useState('提示')
+  let [dialogContent, setDialogContent] = useState('内容')
+  const openDialog = () => setDialogVisible(true);
+  const handleDialogClose = () => {
+    console.log('Dialog closed');
+
+    // Perform other actions if needed
+  };
+
+  const handleClose = () => {
+    setDialogVisible(false);
+  };
   let handleStatusType = ({ id }) => {
     changeStatusType(statusType = id)
   }
