@@ -12,7 +12,7 @@ const MenuBar = () => {
     const [web3, setWeb3] = useState(null);
     const [hasAccount, setHasAccount] = useState(false);
     const [accountAddress, setAccountAddress] = useState('');
-    let [isDialogVisible, setDialogVisible] = useState(false);
+    const [isDialogVisible, setDialogVisible] = useState(false);
     let [dialogTitle, setDialogTitle] = useState('提示')
     let [dialogContent, setDialogContent] = useState('内容')
     const openDialog = () => setDialogVisible(true);
