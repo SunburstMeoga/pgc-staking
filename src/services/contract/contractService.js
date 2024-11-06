@@ -12,17 +12,16 @@ class ContractService {
     }
 
     async callMethod(methodName, ...args) {
-        console.log(methodName, ...args)
+        console.log("Calling method:", methodName);
         const method = this.contract.methods[methodName](...args);
         return await method.call();
     }
 
     async sendMethod(methodName, from, ...args) {
-        // console.log(methodName, from, ...args)
+        console.log(methodName, from, ...args)
         const method = this.contract.methods[methodName](...args);
         const gas = await method.estimateGas({ from });
         const gasPrice = await this.web3.eth.getGasPrice();
-
         return await method.send({
             from,
             gas,

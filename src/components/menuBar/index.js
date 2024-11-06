@@ -68,6 +68,7 @@ const MenuBar = () => {
             localStorage.setItem('account', account[0])
             setAccountAddress(accountAddress = formateAddress(localStorage.getItem('account'), 4))
             console.log(accountAddress)
+            window.location.reload()
         } catch (err) {
             console.log(err)
         }
