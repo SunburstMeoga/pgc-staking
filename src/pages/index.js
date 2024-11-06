@@ -231,7 +231,7 @@ function Home() {
     try {
       let result = await stakingContractService.callMethod('stakingDuration', localStorage.getItem('account'))
       // let staked = await stakingContractService.callMethod('Staked', localStorage.getItem('account'), 1)
-      console.log('已质押的', staked)
+      // console.log('已质押的', staked)
       setPGCRemaining(pgcRemaining = result[0])
       setUSD3Remaining(usd3Remaining = result[1])
       console.log(pgcRemaining, usd3Remaining)
