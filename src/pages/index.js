@@ -147,7 +147,12 @@ function Home() {
   }
   let staking = async () => { //质押
     try {
-      const result = await stakingContractService.sendMethod('stakeInPool', localStorage.getItem('account'), 1, { value: web3.utils.toWei(pgcAmount, "ether") })
+      const result = await stakingContractService.sendMethod(
+        'stakeInPool',
+        localStorage.getItem('account'),
+        [1], // 参数列表，只传递 poolId
+        { value: web3.utils.toWei(pgcAmount, "ether") } // 传递 value 作为支付金额
+      );
       console.log(result)
       setLoadingStaking(loadingStaking = false)
       setDialogTitle(dialogTitle = '成功')
@@ -167,7 +172,7 @@ function Home() {
   }
   let unstake = async () => { //用户取消质押
     try {
-      const result = await stakingContractService.sendMethod('unstake', localStorage.getItem('account'), 1)
+      const result = await stakingContractService.sendMethod('unstake', localStorage.getItem('account'), [1])
       setLoadingUnStaking(loadingUnStaking = false)
       setDialogTitle(dialogTitle = '成功')
       setDialogContent(dialogContent = '已成功收割。')
@@ -196,7 +201,7 @@ function Home() {
   }
   let withdraw = async () => {
     try {
-      const result = await stakingContractService.sendMethod('withdraw', localStorage.getItem('account'), 1)
+      const result = await stakingContractService.sendMethod('withdraw', localStorage.getItem('account'), [1]) // 参数列表，只传递 poolId)
       console.log(result)
       setLoadingWithdraw(loadingWithdraw = false)
       setDialogTitle(dialogTitle = '成功')

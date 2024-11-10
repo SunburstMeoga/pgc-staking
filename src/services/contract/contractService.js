@@ -17,17 +17,23 @@ class ContractService {
         return await method.call();
     }
 
-    async sendMethod(methodName, from, ...args) {
-        // console.log(methodName, from, ...args)
+    async sendMethod(methodName, from, args = [], options = {}) {
         const method = this.contract.methods[methodName](...args);
-        const gas = await method.estimateGas({ from });
+
+        // 估算 gas
+        const gas = await method.estimateGas({ from, ...options });
         const gasPrice = await this.web3.eth.getGasPrice();
 
-        return await method.send({
+        // 合并默认选项与传入选项
+        const sendOptions = {
             from,
             gas,
-            gasPrice
-        });
+            gasPrice,
+            ...options,
+        };
+
+        // 发送交易
+        return await method.send(sendOptions);
     }
 }
 
