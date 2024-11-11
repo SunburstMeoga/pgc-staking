@@ -1,4 +1,6 @@
 import Web3 from "web3";
+import ERC20ABI from '@/services/contract/erc20_abi.json'
+
 class ContractService {
     constructor(provider, contractABI, contractAddress) {
         // console.log(provider, contractABI, contractAddress)
@@ -33,6 +35,21 @@ class ContractService {
         };
 
         // 发送交易
+        return await method.send(sendOptions);
+    }
+
+    async approveUSD3ToStaking(usd3ContractAddress, stakingContractAddress, amount, from) {
+        const usd3Contract = new this.web3.eth.Contract(ERC20ABI, usd3ContractAddress);
+        const method = usd3Contract.methods.approve(stakingContractAddress, amount);
+        const gas = await method.estimateGas({ from });
+        const gasPrice = await this.web3.eth.getGasPrice();
+
+        const sendOptions = {
+            from,
+            gas,
+            gasPrice,
+        };
+
         return await method.send(sendOptions);
     }
 }
