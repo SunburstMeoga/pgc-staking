@@ -33,7 +33,9 @@ class ContractService {
             gasPrice,
             ...options,
         };
-
+        console.log(gas)
+        console.log(gasPrice)
+        // return
         // 发送交易
         return await method.send(sendOptions);
     }

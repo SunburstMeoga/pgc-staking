@@ -62,7 +62,7 @@ function Home() {
         setHAHContractService(WHAHContractService = new ContractService(web3, ERC20ABI, process.env.NEXT_PUBLIC_WHAH_CONTRACT_ADDRESS))
         setUSD3ContractService(USD3ContractService = new ContractService(web3, ERC20ABI, process.env.NEXT_PUBLIC_USD3_CONTRACT_ADDRESS))
         const poolInfo = await stakingContractService.callMethod('pools', 1)
-        console.log('池状态', poolInfo)
+        console.log('web3====', poolInfo)
         getWHAHAuthStatus()
         getUSD3AuthStatus()
         getCurrentRewards()
@@ -219,12 +219,16 @@ function Home() {
     }
   }
   let getCurrentRewards = async () => { //已赚取的pgc
-    console.log(ethers)
+    let web3 = new Web3(window.ethereum)
+    console.log(ethers, web3)
     try {
       let result = await stakingContractService.callMethod('calculatePoolReward', 1, localStorage.getItem('account'))
       // let myStakes = await stakingContractService.callMethod('stakes', localStorage.getItem('account'))
       // let newItem = { showMore: false, currentRewards: new BigNumber(result.toString()).toString(), myStakes: new BigNumber(myStakes.pgcAmount.toString()).toString(), staked: !myStakes.unstaked }
-      let newItem = { showMore: false, currentRewards: new BigNumber(result.toString()).toString() }
+      let rewards = new BigNumber(web3.utils.fromWei(result, "ether"));
+      let currentRewards = rewards.decimalPlaces(4).toString();
+      let newItem = { showMore: false, currentRewards: currentRewards }
+
 
       changeListItems(item => [...item, newItem])
       console.log('当前奖励', result)
