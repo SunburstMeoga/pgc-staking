@@ -283,16 +283,16 @@ function Home() {
       <div className='flex flex-col justify-start items-center bg-gradientBubblegum'>
         <div className='w-23-8 xl:w-full xl:px-18-0 xl:flex xl:justify-between xl:items-start xl:py-2-0'>
           <div className=''>
-            <div className='w-full py-0-5 text-red300 text-2-9 text-left xl:text-4-0 ' >PGChain双币质押</div>
+            <div className='w-full py-0-5 text-red300 text-2-9  xl:text-4-0 ' >PGChain双币质押</div>
             <div className='text-red400 text-1-2 mb-1-5 xl:text-1-3 w-full '>
-              <div className=''>通过质押货币，轻松赚取收益。</div>
-              <div className=''>低风险，高年化收益率，您的最佳选择。</div>
+              <div className='-mt-0-5'>通过质押货币，轻松赚取收益。</div>
+              <div className='-mt-0-5'>低风险，高年化收益率，您的最佳选择。</div>
             </div>
           </div>
           <div className='w-full rounded-3xl bg-white text-redPrimary px-1-6 py-0-5 mb-2-0 xl:w-18-5'>
             <div className='text-0-8'>PGChain双币质押计划</div>
             <div className='text-red400 text-1-3 border-b border-gray100 mb-0-4 pb-0-2'>年化收益率高达26.43%</div>
-            <div className='text-0-7 mb-0-6'>
+            <div className='text-0-7 mb-0-6 text-red400'>
               在双币质押中，我们为未持有 HAH 的用户提供特别机制：
               若用户地址没有持有 HAH，合约将按 2 USD3 = 1 HAH 的比例自动购买 HAH，每枚 HAH 可与 1000 枚 PGC 配对完成双币质押。质押成功后，用户可立即获得 HAH（数量有限，先到先得）。<br />
               若用户地址持有 HAH，则可以直接将 HAH 与 PGC 进行双币质押，享受快捷质押体验。
@@ -302,7 +302,7 @@ function Home() {
               质押完成后，所投入的 USD3 将不会退还，但用户将获得质押时购买的 HAH 和质押的 PGC。
               用户还将额外获得 以 PGC 结算的质押奖励。
             </div>
-            <div className='text-0-7 mb-1-0'>
+            <div className='text-0-7 mb-1-0 text-red400'>
               通过双币质押，用户还可解锁一系列独家权益，包括：
               投票激励：参与治理投票，获得更多收益机会。
               收益助推：提升质押收益，实现更高回报。
