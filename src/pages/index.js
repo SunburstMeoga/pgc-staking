@@ -283,13 +283,13 @@ function Home() {
       <div className='flex flex-col justify-start items-center bg-gradientBubblegum'>
         <div className='w-23-8 xl:w-full xl:px-18-0 xl:flex xl:justify-between xl:items-start xl:py-2-0'>
           <div className=''>
-            <div className='w-full py-0-5 text-red300 text-2-9 text-center xl:text-4-0'>PGChain双币质押</div>
-            <div className='text-red400 text-1-2 mb-1-5 xl:text-1-3'>
+            <div className='w-full py-0-5 text-red300 text-2-9 text-left xl:text-4-0 ' >PGChain双币质押</div>
+            <div className='text-red400 text-1-2 mb-1-5 xl:text-1-3 w-full '>
               <div className=''>通过质押货币，轻松赚取收益。</div>
-              <div className='-mt-0-5'>低风险，高年化收益率，您的最佳选择。</div>
+              <div className=''>低风险，高年化收益率，您的最佳选择。</div>
             </div>
           </div>
-          <div className='w-full rounded-3xl bg-white text-red200 px-1-6 py-0-5 mb-2-0 xl:w-18-5'>
+          <div className='w-full rounded-3xl bg-white text-redPrimary px-1-6 py-0-5 mb-2-0 xl:w-18-5'>
             <div className='text-0-8'>PGChain双币质押计划</div>
             <div className='text-red400 text-1-3 border-b border-gray100 mb-0-4 pb-0-2'>年化收益率高达26.43%</div>
             <div className='text-0-7 mb-0-6'>
@@ -311,7 +311,7 @@ function Home() {
             <div className='text-0-7 mb-1-0'>
               立即参与，享受更多双币质押带来的丰厚奖励与专属权益！
             </div>
-            <div className='w-full h-3-0 text-white bg-red200 flex justify-center items-center rounded-2xl mb-0-6 cursor-pointer' onClick={() => handleWithdraw()}>
+            <div className='w-full h-3-0 text-white bg-redPrimary flex justify-center items-center rounded-2xl mb-0-6 cursor-pointer' onClick={() => handleWithdraw()}>
               {loadingWithdraw ? <div className='icon iconfont icon-jiazailoading-A animate-spin'></div> : '提现'}
             </div>
             {/* <div className='w-full h-3-0 border-2  border-red200 text-red200 flex justify-center items-center rounded-2xl mb-0-6' onClick={() => handleWithdraw()}>

@@ -28,6 +28,7 @@ module.exports = {
         "white400": "#D7CAEC",
         "white500": "#F6F6F6",
         "red100": "#CE0E17",
+        "redPrimary": "#da251d",
         "red200": "#aa464b",
         "red300": "#dc5c5c",
         "red400": "#370b08",
