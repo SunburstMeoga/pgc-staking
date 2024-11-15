@@ -293,13 +293,23 @@ function Home() {
             <div className='text-0-8'>PGChain双币质押计划</div>
             <div className='text-red400 text-1-3 border-b border-gray100 mb-0-4 pb-0-2'>年化收益率高达26.43%</div>
             <div className='text-0-7 mb-0-6'>
-              PGChain为庆祝与Hash Ahead的合作，特别为用户申请了一定份额的 HAH，只需在进行双币质押时，支付一定数量的 USD3 即可购买HAH，并与PGC共同进行双币质押，质押完成后即可获得HAH（数量有限，先到先得）
+              在双币质押中，我们为未持有 HAH 的用户提供特别机制：
+              若用户地址没有持有 HAH，合约将按 2 USD3 = 1 HAH 的比例自动购买 HAH，每枚 HAH 可与 1000 枚 PGC 配对完成双币质押。质押成功后，用户可立即获得 HAH（数量有限，先到先得）。<br />
+              若用户地址持有 HAH，则可以直接将 HAH 与 PGC 进行双币质押，享受快捷质押体验。
             </div>
             <div className='text-0-7 mb-0-6'>
-              请注意：质押完成后，USD3 将不会退还，您会得到质押时购买的HAH 和质押的 PGC。此外，您还会获得以 PGC 结算的质押奖励。
+              <h3 className='font-black text-1-4' >重要提示：</h3>
+              质押完成后，所投入的 USD3 将不会退还，但用户将获得质押时购买的 HAH 和质押的 PGC。
+              用户还将额外获得 以 PGC 结算的质押奖励。
             </div>
             <div className='text-0-7 mb-1-0'>
-              此外，解锁其他权益，例如投票激励、收益助推、IFO 等…
+              通过双币质押，用户还可解锁一系列独家权益，包括：
+              投票激励：参与治理投票，获得更多收益机会。
+              收益助推：提升质押收益，实现更高回报。
+              IFO 参与权：优先参与创新型项目的首次发行机会。
+            </div>
+            <div className='text-0-7 mb-1-0'>
+              立即参与，享受更多双币质押带来的丰厚奖励与专属权益！
             </div>
             <div className='w-full h-3-0 text-white bg-red200 flex justify-center items-center rounded-2xl mb-0-6 cursor-pointer' onClick={() => handleWithdraw()}>
               {loadingWithdraw ? <div className='icon iconfont icon-jiazailoading-A animate-spin'></div> : '提现'}
