@@ -330,10 +330,10 @@ function Home() {
                 })} */}
               </div>
               <div className='flex justify-end items-center text-red400'>
-                <div onClick={() => handleSwitch()} className={`p-0-2 relative w-3-0 h-1-6 rounded-full mr-0-2 duration-500 transition ease-in-out ${switchState ? 'justify-end bg-red100' : 'justify-start bg-white300'}`}>
+                {/* <div onClick={() => handleSwitch()} className={`p-0-2 relative w-3-0 h-1-6 rounded-full mr-0-2 duration-500 transition ease-in-out ${switchState ? 'justify-end bg-red100' : 'justify-start bg-white300'}`}>
                   <div className={`w-1-2 h-1-2 rounded-full duration-750 transition ease-in-out bg-white absolute  ${switchState ? 'right-0-2' : 'left-0-2'}`}></div>
                 </div>
-                <div>仅限已质押</div>
+                <div>仅限已质押</div> */}
               </div>
             </div>
             <div className='w-full border border-gray100 rounded-3xl bg-white shadow-lg'>

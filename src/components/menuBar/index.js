@@ -80,7 +80,7 @@ const MenuBar = () => {
     return (
         <>
             <div className='p-1-0 flex justify-between items-center'>
-                <div className='w-1/2 xl:w-2/12'>
+                <div className='w-1/3 xl:w-2/12'>
                     <img src='/images/logo.svg'></img>
                 </div>
                 {hasAccount ? <div onClick={() => handleAccount()} className='flex justify-end items-center'>
