@@ -373,7 +373,10 @@ function Home() {
                         <div className='w-full px-1-0 flex justify-around items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2'>
                           <div className=''>PGC</div>
                           <div className='flex-1 ml-0-2'> <input onChange={handlePGCAmountChange} className='bg-transparent placeholder-text-red100  w-full' placeholder='请输入' /> </div>
-                          <div> ≈ {(pgcAmount / 2).toFixed(2)} HAH</div>
+                          <div className='flex flex-col items-end'>
+                            <div>: {(pgcAmount / 1000).toFixed(3)} HAH</div>
+                            <div className='text-0-6' >{(pgcAmount / 1000 * 2).toFixed(3)}USD3</div>
+                          </div>
                         </div>
                         {
                           USD3Allowance && WHAHAllowance && <div onClick={() => handleStaking(item)} className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2'>
