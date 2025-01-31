@@ -37,6 +37,37 @@
         "type": "error"
     },
     {
+<<<<<<< HEAD
+=======
+        "inputs": [
+            {
+                "internalType": "contract IERC20Upgradeable",
+                "name": "_usd3Token",
+                "type": "address"
+            },
+            {
+                "internalType": "contract IERC20Upgradeable",
+                "name": "_whahToken",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_totalDailyReward",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_numPools",
+                "type": "uint256"
+            }
+        ],
+        "name": "initialize",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+>>>>>>> 640637e6ff6a8e45db49e2e9424cd9953fecea77
         "inputs": [],
         "name": "InvalidInitialization",
         "type": "error"
@@ -117,6 +148,13 @@
         "type": "event"
     },
     {
+        "inputs": [],
+        "name": "pause",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
         "anonymous": false,
         "inputs": [
             {
@@ -128,6 +166,13 @@
         ],
         "name": "Paused",
         "type": "event"
+    },
+    {
+        "inputs": [],
+        "name": "renounceOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
         "anonymous": false,
@@ -149,6 +194,27 @@
         "type": "event"
     },
     {
+<<<<<<< HEAD
+=======
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "poolId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bool",
+                "name": "isActive",
+                "type": "bool"
+            }
+        ],
+        "name": "setPoolStatus",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+>>>>>>> 640637e6ff6a8e45db49e2e9424cd9953fecea77
         "anonymous": false,
         "inputs": [
             {
@@ -186,6 +252,42 @@
         "type": "event"
     },
     {
+<<<<<<< HEAD
+=======
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "poolId",
+                "type": "uint256"
+            }
+        ],
+        "name": "stakeInPool",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "transferOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "unpause",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+>>>>>>> 640637e6ff6a8e45db49e2e9424cd9953fecea77
         "anonymous": false,
         "inputs": [
             {
@@ -199,6 +301,22 @@
         "type": "event"
     },
     {
+<<<<<<< HEAD
+=======
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "poolId",
+                "type": "uint256"
+            }
+        ],
+        "name": "unstake",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+>>>>>>> 640637e6ff6a8e45db49e2e9424cd9953fecea77
         "anonymous": false,
         "inputs": [
             {
@@ -249,6 +367,40 @@
         "type": "event"
     },
     {
+<<<<<<< HEAD
+=======
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "newImplementation",
+                "type": "address"
+            },
+            {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+            }
+        ],
+        "name": "upgradeToAndCall",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "poolId",
+                "type": "uint256"
+            }
+        ],
+        "name": "withdraw",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+>>>>>>> 640637e6ff6a8e45db49e2e9424cd9953fecea77
         "anonymous": false,
         "inputs": [
             {
@@ -362,6 +514,7 @@
         "type": "function"
     },
     {
+<<<<<<< HEAD
         "inputs": [
             {
                 "internalType": "contract IERC20Upgradeable",
@@ -382,14 +535,7 @@
                 "internalType": "uint256",
                 "name": "_numPools",
                 "type": "uint256"
-            }
-        ],
-        "name": "initialize",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
+=======
         "inputs": [],
         "name": "owner",
         "outputs": [
@@ -404,22 +550,18 @@
     },
     {
         "inputs": [],
-        "name": "pause",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [],
         "name": "paused",
         "outputs": [
             {
                 "internalType": "bool",
                 "name": "",
                 "type": "bool"
+>>>>>>> 640637e6ff6a8e45db49e2e9424cd9953fecea77
             }
         ],
-        "stateMutability": "view",
+        "name": "initialize",
+        "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -437,12 +579,52 @@
     },
     {
         "inputs": [],
+<<<<<<< HEAD
+        "name": "pause",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "paused",
+=======
         "name": "pgcUnstakeDelay",
+>>>>>>> 640637e6ff6a8e45db49e2e9424cd9953fecea77
         "outputs": [
             {
                 "internalType": "uint256",
                 "name": "",
                 "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "pools",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "rewardShare",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "totalPgcStaked",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bool",
+                "name": "isActive",
+                "type": "bool"
             }
         ],
         "stateMutability": "view",
@@ -517,6 +699,7 @@
         "type": "function"
     },
     {
+<<<<<<< HEAD
         "inputs": [
             {
                 "internalType": "uint256",
@@ -553,6 +736,13 @@
         "outputs": [
             {
                 "internalType": "uint256",
+=======
+        "inputs": [],
+        "name": "stakingDuration",
+        "outputs": [
+            {
+                "internalType": "uint256",
+>>>>>>> 640637e6ff6a8e45db49e2e9424cd9953fecea77
                 "name": "",
                 "type": "uint256"
             }
