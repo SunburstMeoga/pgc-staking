@@ -374,8 +374,8 @@ function Home() {
                           <div className=''>PGC</div>
                           <div className='flex-1 ml-0-2'> <input onChange={handlePGCAmountChange} className='bg-transparent placeholder-text-red100  w-full' placeholder='请输入' /> </div>
                           <div className='flex flex-col items-end'>
-                            <div>: {(pgcAmount / 1000).toFixed(3)} HAH</div>
-                            <div className='text-0-6' >{(pgcAmount / 1000 * 2).toFixed(3)} USD3</div>
+                            <div>: {(pgcAmount / 1000)} HAH</div>
+                            <div className='text-0-6' >{(pgcAmount / 1000 * 2)} USD3</div>
                           </div>
                         </div>
                         {
