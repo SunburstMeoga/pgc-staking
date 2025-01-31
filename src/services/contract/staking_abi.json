@@ -16,13 +16,6 @@
         "type": "error"
     },
     {
-        "inputs": [],
-        "name": "emergencyWithdraw",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
         "inputs": [
             {
                 "internalType": "address",
@@ -40,31 +33,8 @@
     },
     {
         "inputs": [],
-        "name": "FailedInnerCall",
+        "name": "FailedCall",
         "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "contract IERC20Upgradeable",
-                "name": "_usd3Token",
-                "type": "address"
-            },
-            {
-                "internalType": "contract IERC20Upgradeable",
-                "name": "_whahToken",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "_totalDailyReward",
-                "type": "uint256"
-            }
-        ],
-        "name": "initialize",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
     },
     {
         "inputs": [],
@@ -97,20 +67,6 @@
         ],
         "name": "OwnableUnauthorizedAccount",
         "type": "error"
-    },
-    {
-        "inputs": [],
-        "name": "pause",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "renounceOwnership",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
     },
     {
         "inputs": [],
@@ -193,13 +149,6 @@
         "type": "event"
     },
     {
-        "inputs": [],
-        "name": "stake",
-        "outputs": [],
-        "stateMutability": "payable",
-        "type": "function"
-    },
-    {
         "anonymous": false,
         "inputs": [
             {
@@ -207,6 +156,12 @@
                 "internalType": "address",
                 "name": "user",
                 "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "poolId",
+                "type": "uint256"
             },
             {
                 "indexed": false,
@@ -231,26 +186,6 @@
         "type": "event"
     },
     {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "newOwner",
-                "type": "address"
-            }
-        ],
-        "name": "transferOwnership",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "unpause",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
         "anonymous": false,
         "inputs": [
             {
@@ -264,13 +199,6 @@
         "type": "event"
     },
     {
-        "inputs": [],
-        "name": "unstake",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
         "anonymous": false,
         "inputs": [
             {
@@ -278,6 +206,12 @@
                 "internalType": "address",
                 "name": "user",
                 "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "poolId",
+                "type": "uint256"
             },
             {
                 "indexed": false,
@@ -302,76 +236,6 @@
         "type": "event"
     },
     {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "newRate",
-                "type": "uint256"
-            }
-        ],
-        "name": "updateDailyRewardRate",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "newRatio",
-                "type": "uint256"
-            }
-        ],
-        "name": "updateStakingRatio",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "newTotalReward",
-                "type": "uint256"
-            }
-        ],
-        "name": "updateTotalDailyReward",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "newPgcDelay",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "newErc20Delay",
-                "type": "uint256"
-            }
-        ],
-        "name": "updateUnstakeDelays",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "newRate",
-                "type": "uint256"
-            }
-        ],
-        "name": "updateWhahToUsd3Rate",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
         "anonymous": false,
         "inputs": [
             {
@@ -385,31 +249,6 @@
         "type": "event"
     },
     {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "newImplementation",
-                "type": "address"
-            },
-            {
-                "internalType": "bytes",
-                "name": "data",
-                "type": "bytes"
-            }
-        ],
-        "name": "upgradeToAndCall",
-        "outputs": [],
-        "stateMutability": "payable",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "withdraw",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
         "anonymous": false,
         "inputs": [
             {
@@ -417,6 +256,12 @@
                 "internalType": "address",
                 "name": "user",
                 "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "poolId",
+                "type": "uint256"
             },
             {
                 "indexed": false,
@@ -441,18 +286,32 @@
         "type": "event"
     },
     {
-        "stateMutability": "payable",
-        "type": "receive"
+        "inputs": [],
+        "name": "UPGRADE_INTERFACE_VERSION",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
     },
     {
         "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "poolId",
+                "type": "uint256"
+            },
             {
                 "internalType": "address",
                 "name": "staker",
                 "type": "address"
             }
         ],
-        "name": "calculateReward",
+        "name": "calculatePoolReward",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -505,44 +364,29 @@
     {
         "inputs": [
             {
-                "internalType": "address",
-                "name": "staker",
+                "internalType": "contract IERC20Upgradeable",
+                "name": "_usd3Token",
                 "type": "address"
-            }
-        ],
-        "name": "getCurrentRewards",
-        "outputs": [
+            },
+            {
+                "internalType": "contract IERC20Upgradeable",
+                "name": "_whahToken",
+                "type": "address"
+            },
             {
                 "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "staker",
-                "type": "address"
-            }
-        ],
-        "name": "getRemainingLockingPeriod",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "pgcRemaining",
+                "name": "_totalDailyReward",
                 "type": "uint256"
             },
             {
                 "internalType": "uint256",
-                "name": "erc20Remaining",
+                "name": "_numPools",
                 "type": "uint256"
             }
         ],
-        "stateMutability": "view",
+        "name": "initialize",
+        "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -556,6 +400,13 @@
             }
         ],
         "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "pause",
+        "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -598,6 +449,35 @@
         "type": "function"
     },
     {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "pools",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "rewardShare",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "totalPgcStaked",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bool",
+                "name": "isActive",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
         "inputs": [],
         "name": "proxiableUUID",
         "outputs": [
@@ -608,6 +488,13 @@
             }
         ],
         "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "renounceOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -632,40 +519,32 @@
     {
         "inputs": [
             {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "name": "stakes",
-        "outputs": [
-            {
                 "internalType": "uint256",
-                "name": "pgcAmount",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "whahAmount",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "usd3Amount",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "timestamp",
+                "name": "poolId",
                 "type": "uint256"
             },
             {
                 "internalType": "bool",
-                "name": "unstaked",
+                "name": "isActive",
                 "type": "bool"
             }
         ],
-        "stateMutability": "view",
+        "name": "setPoolStatus",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "poolId",
+                "type": "uint256"
+            }
+        ],
+        "name": "stakeInPool",
+        "outputs": [],
+        "stateMutability": "payable",
         "type": "function"
     },
     {
@@ -695,6 +574,52 @@
         "type": "function"
     },
     {
+        "inputs": [],
+        "name": "totalPools",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "transferOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "unpause",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "poolId",
+                "type": "uint256"
+            }
+        ],
+        "name": "unstake",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
         "inputs": [
             {
                 "internalType": "address",
@@ -714,34 +639,117 @@
         "type": "function"
     },
     {
-        "inputs": [],
-        "name": "UPGRADE_INTERFACE_VERSION",
-        "outputs": [
+        "inputs": [
             {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
+                "internalType": "uint256",
+                "name": "newRate",
+                "type": "uint256"
             }
         ],
-        "stateMutability": "view",
+        "name": "updateDailyRewardRate",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "newDelay",
+                "type": "uint256"
+            }
+        ],
+        "name": "updateErc20UnstakeDelay",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "newRatio",
+                "type": "uint256"
+            }
+        ],
+        "name": "updatePgcToErc20Ratio",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "newDelay",
+                "type": "uint256"
+            }
+        ],
+        "name": "updatePgcUnstakeDelay",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "newDuration",
+                "type": "uint256"
+            }
+        ],
+        "name": "updateStakingDuration",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "newTotalReward",
+                "type": "uint256"
+            }
+        ],
+        "name": "updateTotalDailyReward",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "newRate",
+                "type": "uint256"
+            }
+        ],
+        "name": "updateWhahToUsd3Rate",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "newImplementation",
+                "type": "address"
+            },
+            {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+            }
+        ],
+        "name": "upgradeToAndCall",
+        "outputs": [],
+        "stateMutability": "payable",
         "type": "function"
     },
     {
         "inputs": [],
         "name": "usd3Token",
-        "outputs": [
-            {
-                "internalType": "contract IERC20Upgradeable",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "whahToken",
         "outputs": [
             {
                 "internalType": "contract IERC20Upgradeable",
@@ -764,5 +772,35 @@
         ],
         "stateMutability": "view",
         "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "whahToken",
+        "outputs": [
+            {
+                "internalType": "contract IERC20Upgradeable",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "poolId",
+                "type": "uint256"
+            }
+        ],
+        "name": "withdraw",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "stateMutability": "payable",
+        "type": "receive"
     }
 ]
