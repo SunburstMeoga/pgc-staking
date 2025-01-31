@@ -3,7 +3,7 @@ import ERC20ABI from '@/services/contract/erc20_abi.json'
 
 class ContractService {
     constructor(provider, contractABI, contractAddress) {
-        // console.log(provider, contractABI, contractAddress)
+        console.log(provider, contractABI, contractAddress)
         this.web3 = new Web3(provider);
         this.contract = new this.web3.eth.Contract(contractABI, contractAddress);
     }
