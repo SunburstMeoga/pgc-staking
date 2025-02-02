@@ -35,10 +35,10 @@ function Home() {
   let handleStatusType = ({ id }) => {
     changeStatusType(statusType = id)
   }
-  let handleShowMore = ({ id }) => {
+  let handleShowMore = ({ poolId }) => {
     changeListItems(nodeListItems =>
       nodeListItems.map(item =>
-        item.id === id ? { ...item, showMore: !item.showMore } : item))
+        item.poolId === poolId ? { ...item, showMore: !item.showMore } : item))
   }
   let handleSwitch = () => {
     changeSwitchState(switchState = !switchState)
@@ -62,14 +62,48 @@ function Home() {
         setHAHContractService(WHAHContractService = new ContractService(web3, ERC20ABI, process.env.NEXT_PUBLIC_WHAH_CONTRACT_ADDRESS))
         setUSD3ContractService(USD3ContractService = new ContractService(web3, ERC20ABI, process.env.NEXT_PUBLIC_USD3_CONTRACT_ADDRESS))
         const poolInfo = await stakingContractService.callMethod('pools', 1)
-        console.log('web3====', poolInfo)
-        getWHAHAuthStatus()
-        getUSD3AuthStatus()
-        getCurrentRewards()
-        getRemainingLockingPeriod()
+        fetchNodeList()
+        // console.log('web3====', poolInfo)
+        // getWHAHAuthStatus()
+        // getUSD3AuthStatus()
+        // getCurrentRewards()
+        // getRemainingLockingPeriod()
         // stakes()
       } else {
         console.log('没安装metamask')
+      }
+    }
+
+    const fetchNodeList = async () => { //初始化节点列表
+      const initialArray = Array.from({ length: 21 }, (_, index) => ({
+        poolId: index + 1,
+        showMore: false, // 初始化 showMore 状态
+      }));
+
+      try {
+        // let stakeInfo = await stakingContractService.callMethod('userStakeInfo', 1)
+        // console.log('stakeInfo', stakeInfo)
+        const updatedArray = await Promise.all(
+          initialArray.map(async (item) => {
+            const stakeInfo = await stakingContractService.callMethod('userStakeInfo', item.poolId);
+            return {
+              ...item,
+              stakeInfo: {
+                pgcAmount: stakeInfo.pgcAmount,
+                whahAmount: stakeInfo.whahAmount,
+                usd3Amount: stakeInfo.usd3Amount,
+                timestamp: stakeInfo.timestamp,
+                unstakeTimestamp: stakeInfo.unstakeTimestamp,
+                unstaked: stakeInfo.unstaked,
+
+              },
+            };
+          })
+        )
+        changeListItems(updatedArray)
+        console.log(updatedArray)
+      } catch (err) {
+        console.log('fetch error', err)
       }
     }
 
@@ -321,7 +355,7 @@ function Home() {
         </div>
         <div className='bg-white200 w-full flex flex-col justify-center items-center pt-1-8 pb-2-0'>
           <div className='flex flex-col justify-center items-center w-23-8 xl:w-full xl:px-18-0'>
-            <div className='flex justify-between items-center w-full mb-2-4'>
+            <div className='flex justify-between items-center w-full mb-1-4'>
               <div className='flex justify-start rounded-full bg-white300 border border-white400'>
                 {/* {statusTypeItems.map((item, index) => {
                   return <div key={index} onClick={() => handleStatusType(item)} className={`px-1-4 py-0-3 text-1-0 ${statusType === item.id ? 'text-white bg-red200 rounded-full' : 'text-red200 bg-transparent'}`}>
@@ -336,9 +370,9 @@ function Home() {
                 <div>仅限已质押</div> */}
               </div>
             </div>
-            <div className='w-full border border-gray100 rounded-3xl bg-white shadow-lg'>
+            <div className='w-full'>
               {nodeListItems.map((item, index) => {
-                return <div key={index} className=' text-red200 duration-500 transition ease-in-out '>
+                return <div key={index} className=' text-red200 duration-500 transition ease-in-out  border border-gray100 rounded-3xl bg-white shadow-lg mb-1-0'>
 
                   <div className=' flex justify-between items-center px-1-0 py-1-5'>
                     <div className='font-bold text-1-0 text-red400'>{`节点${index + 1}`}</div>
@@ -346,14 +380,14 @@ function Home() {
                       <div className='text-red400'>已赚取的PGC</div>
                       <div> {item.currentRewards} PGC</div>
                     </div>
-                    {/* <div className='text-0-7'>
+                    <div className='text-0-7'>
                       <div className='text-red400'>质押总计</div>
                       <div> 0 PGC</div>
                     </div>
                     <div className='text-0-7'>
                       <div className='text-red400'>我的质押</div>
                       <div>{item.myStakes}</div>
-                    </div> */}
+                    </div>
                     <div className={`icon iconfont icon-down text-0-6 duration-500 transition ease-in-out ${item.showMore ? 'rotate-180' : ''}`} onClick={() => handleShowMore(item)}></div>
                   </div>
                   <div className={`bg-white500 w-full rounded-b-3xl duration-500 transition ease-in-out border border-red20 xl:flex xl:justify-between  ${item.showMore ? 'scale-y-100 h-fit p-1-0' : 'scale-y-0 h-0-1'}`}>

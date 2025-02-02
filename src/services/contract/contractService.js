@@ -14,7 +14,7 @@ class ContractService {
     }
 
     async callMethod(methodName, ...args) {
-        console.log(methodName, ...args)
+        // console.log(methodName, ...args)
         const method = this.contract.methods[methodName](...args);
         return await method.call();
     }
