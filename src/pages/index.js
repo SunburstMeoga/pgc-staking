@@ -120,9 +120,11 @@ function Home() {
       const updatedArray = await Promise.all(
         initialArray.map(async (item) => {
           const stakeInfo = await stakingContractService.callMethod('userStakeInfo', item.poolId);
+          console.log('object',stakeInfo,item.poolId)
           return {
             ...item,
             stakeInfo: {
+              id:item.poolId,
               pgcAmount: stakeInfo.pgcAmount,
               whahAmount: stakeInfo.whahAmount,
               usd3Amount: stakeInfo.usd3Amount,
@@ -348,7 +350,7 @@ function Home() {
                 return <div key={index} className=' text-red200 duration-500 transition ease-in-out  border border-gray100 rounded-3xl bg-white shadow-lg mb-1-0'>
 
                   <div className=' flex justify-between items-center px-1-0 py-1-5'>
-                    <div className='font-bold text-1-0 text-red400'>{`节点${index + 1}`}</div>
+                    <div className='font-bold text-1-0 text-red400'>{`节点${item.poolId}`}</div>
                     <div className='text-0-7'>
                       <div className='text-red400'>已质押的PGC</div>
                       <div> {item.stakeInfo.pgcAmount || 0} PGC</div>
