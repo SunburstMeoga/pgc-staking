@@ -61,87 +61,98 @@ function Home() {
   let [selectToken, setSelectToken] = useState(1)
   let [pgcAmount, setPGCAmount] = useState(0)
   useEffect(() => {
-    const initWeb3 = async () => { //初始化web3
-      if (typeof window !== 'undefined' && typeof window.ethereum !== 'undefined') {
-        let web3 = new Web3(window.ethereum)
-        setWeb3(web3 = web3)
-        setStakingContractService(stakingContractService = new ContractService(web3, StakingABI, process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS))
-        setHAHContractService(WHAHContractService = new ContractService(web3, ERC20ABI, process.env.NEXT_PUBLIC_WHAH_CONTRACT_ADDRESS))
-        setUSD3ContractService(USD3ContractService = new ContractService(web3, ERC20ABI, process.env.NEXT_PUBLIC_USD3_CONTRACT_ADDRESS))
-        const poolInfo = await stakingContractService.callMethod('pools', 1)
-        fetchNodeList()
-        // console.log('web3====', poolInfo)
-        getWHAHAuthStatus()
-        getUSD3AuthStatus()
-        // getCurrentRewards()
-        // getRemainingLockingPeriod()
-        // stakes()
-      } else {
-        console.log('没安装metamask')
+    const init = async () => {
+      if (typeof window !== 'undefined' && window.ethereum) {
+        try {
+          await window.ethereum.request({ method: 'eth_requestAccounts' });
+          fetchNodeList(); // 初始化时直接获取数据
+          getUSD3AuthStatus()
+          getWHAHAuthStatus()
+        } catch (error) {
+          console.error('连接钱包失败:', error);
+        }
       }
-    }
+    };
 
 
-
-    const getUSD3AuthStatus = async () => { //获取usd3对质押合约的授权状态
-      try {
-        const result = await USD3ContractService.callMethod('allowance', localStorage.getItem('account'), process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS)
-        setUSD3Allowance(result == 0 ? USD3Allowance = false : USD3Allowance = true)
-        console.log(USD3Allowance, result)
-      } catch (err) {
-        console.log(err)
-      }
-    }
+    const getUSD3AuthStatus = async () => {
+      const contract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_USD3_CONTRACT_ADDRESS,
+        ERC20ABI,
+        await new ethers.BrowserProvider(window.ethereum).getSigner()
+      );
+      const result = await contract.allowance(
+        localStorage.getItem('account'),
+        process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS
+      );
+      setUSD3Allowance(result > 0);
+    };
     const getWHAHAuthStatus = async () => { //获取whah对质押合约的授权状态
       try {
-        const result = await WHAHContractService.callMethod('allowance', localStorage.getItem('account'), process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS)
-        setWHAHAllowance(result == 0 ? WHAHAllowance = false : WHAHAllowance = true)
-        console.log(WHAHAllowance, result)
+        // const result = await WHAHContractService.callMethod('allowance', localStorage.getItem('account'), process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS)
+        // setWHAHAllowance(result == 0 ? WHAHAllowance = false : WHAHAllowance = true)
+
+        const contract = new ethers.Contract(
+          process.env.NEXT_PUBLIC_WHAH_CONTRACT_ADDRESS,
+          ERC20ABI,
+          await new ethers.BrowserProvider(window.ethereum).getSigner()
+        );
+        const result = await contract.allowance(
+          localStorage.getItem('account'),
+          process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS
+        );
+        setWHAHAllowance(result > 0);
       } catch (err) {
         console.log(err)
       }
     }
-    initWeb3();
+    init();
+    
   }, []);
   const handleTokenType = (item) => { //点击辅助token
     setSelectToken(selectToken = item.id)
     console.log(item.id, selectToken)
 
   }
-  const fetchNodeList = async () => { //初始化节点列表
-    const initialArray = Array.from({ length: 21 }, (_, index) => ({
-      poolId: index + 1,
-      showMore: false, // 初始化 showMore 状态
-    }));
-
+  const fetchNodeList = async () => {
     try {
-      // let stakeInfo = await stakingContractService.callMethod('userStakeInfo', 1)
-      // console.log('stakeInfo', stakeInfo)
-      const updatedArray = await Promise.all(
-        initialArray.map(async (item) => {
-          const stakeInfo = await stakingContractService.callMethod('userStakeInfo', item.poolId);
-          console.log('object',stakeInfo,item.poolId)
+      if (!window.ethereum) {
+        throw new Error('请安装MetaMask钱包');
+      }
+  
+      // 使用ethers替换原有web3初始化逻辑
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const stakingContract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS,
+        StakingABI,
+        signer
+      );
+  
+      // 并行获取所有pool数据
+      const results = await Promise.all(
+        Array.from({length: 21}, (_, i) => i + 1).map(async (poolId) => {
+          const info = await stakingContract.userStakeInfo(poolId);
           return {
-            ...item,
-            stakeInfo: {
-              id:item.poolId,
-              pgcAmount: stakeInfo.pgcAmount,
-              whahAmount: stakeInfo.whahAmount,
-              usd3Amount: stakeInfo.usd3Amount,
-              timestamp: stakeInfo.timestamp,
-              unstakeTimestamp: stakeInfo.unstakeTimestamp,
-              unstaked: stakeInfo.unstaked,
-
-            },
+            poolId,
+            pgcAmount: ethers.formatUnits(info[0], 18),
+            whahAmount: ethers.formatUnits(info[1], 18),
+            usd3Amount: ethers.formatUnits(info[2], 18),
+            timestamp: new Date(Number(info[3]) * 1000).toLocaleString(),
+            unstakeTimestamp: info[4] ? new Date(Number(info[4]) * 1000).toLocaleString() : 'N/A',
+            unstaked: info[5]
           };
         })
-      )
-      changeListItems(updatedArray)
-      console.log(updatedArray)
+      );
+  
+      changeListItems(results);
     } catch (err) {
-      console.log('fetch error', err)
+      console.error('fetch error', err);
+      setDialogTitle('数据获取失败');
+      setDialogContent(err.message || '无法获取质押数据');
+      openDialog();
     }
-  }
+  };
   let handleApproveUSD3 = () => { //点击usd3授权按钮
     if (loadingUSD3Auth) return
     console.log('object')
@@ -193,13 +204,17 @@ function Home() {
   let staking = async (poolId) => { //质押
     setIsStaking(false)
     try {
-      const result = await stakingContractService.sendMethod(
-        'stakeInPool',
-        localStorage.getItem('account'),
-        [poolId], // 参数列表，只传递 poolId
-        { value: web3.utils.toWei(pgcAmount, "ether") } // 传递 value 作为支付金额
+      const contract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS,
+        StakingABI,
+        await new ethers.BrowserProvider(window.ethereum).getSigner()
       );
-      console.log(result)
+      
+      const tx = await contract.stakeInPool(
+        poolId,
+        { value: ethers.parseUnits(pgcAmount, 18) }
+      );
+      await tx.wait();
       setLoadingStaking(loadingStaking = false)
       setDialogTitle(dialogTitle = '成功')
       setDialogContent(dialogContent = '已成功质押。')
@@ -353,15 +368,15 @@ function Home() {
                     <div className='font-bold text-1-0 text-red400'>{`节点${item.poolId}`}</div>
                     <div className='text-0-7'>
                       <div className='text-red400'>已质押的PGC</div>
-                      <div> {item.stakeInfo.pgcAmount || 0} PGC</div>
+                      <div> {item.pgcAmount || 0} PGC</div>
                     </div>
                     <div className='text-0-7'>
                       <div className='text-red400'>已质押的HAH</div>
-                      <div> {item.stakeInfo.whahAmount || 0} HAH</div>
+                      <div> {item.whahAmount || 0} HAH</div>
                     </div>
                     <div className='text-0-7'>
                       <div className='text-red400'>已质押的USD3</div>
-                      <div> {item.stakeInfo.usd3Amount || 0} USD3</div>
+                      <div> {item.usd3Amount || 0} USD3</div>
                     </div>
                     <div className={`icon iconfont icon-down text-0-6 duration-500 transition ease-in-out ${item.showMore ? 'rotate-180' : ''}`} onClick={() => handleShowMore(item)}></div>
                   </div>
@@ -410,16 +425,16 @@ function Home() {
                       <div className='text-red400'>我的质押:</div>
                       <div className='text-red200'>1,000,000</div>
                     </div> */}
-                    {item.stakeInfo.pgcAmount != 0 && <div className='w-full flex justify-between items-center text-0-8'>
+                    {item.pgcAmount != 0 && <div className='w-full flex justify-between items-center text-0-8'>
                       <div className='text-red400'>结束倒计时:</div>
                       <div className='text-red200 flex justify-end items-center'>
                         <div className='mr-0-2'>
-                          <CountdownTimer targetTimestamp={item.stakeInfo.unstakeTimestamp} />
+                          <CountdownTimer targetTimestamp={item.unstakeTimestamp} />
                         </div>
                         <div className='icon iconfont icon-daojishi'></div>
                       </div>
                     </div>}
-                    {item.stakeInfo.unstake && <div onClick={() => handleUnStaking(item)} className='w-full h-3-0 flex justify-center items-center bg-red200 text-white rounded-lg mt-1-0' >赎回</div>}
+                    {item.unstake && <div onClick={() => handleUnStaking(item)} className='w-full h-3-0 flex justify-center items-center bg-red200 text-white rounded-lg mt-1-0' >赎回</div>}
                     {/* <div className='flex justify-end items-center text-red100'>
                       <div className='mr-0-4 text-0-8 font-bold underline'>查看代币信息</div>
                       <div className='icon iconfont icon-fenxiang'></div>
