@@ -133,13 +133,17 @@ function Home() {
       const results = await Promise.all(
         Array.from({length: 21}, (_, i) => i + 1).map(async (poolId) => {
           const info = await stakingContract.userStakeInfo(poolId);
+          const timestamp = parseTimestamp(info[3]);
+          const unstakeTimestamp = info[4] 
+            ? parseTimestamp(info[4])
+            : null;
           return {
             poolId,
             pgcAmount: ethers.formatUnits(info[0], 18),
             whahAmount: ethers.formatUnits(info[1], 18),
             usd3Amount: ethers.formatUnits(info[2], 18),
-            timestamp: new Date(Number(info[3]) * 1000).toLocaleString(),
-            unstakeTimestamp: info[4] ? new Date(Number(info[4]) * 1000).toLocaleString() : 'N/A',
+            timestamp: timestamp?.toLocaleString('zh-CN') || '未质押',
+              unstakeTimestamp: unstakeTimestamp?.toLocaleString('zh-CN') || '未解押',
             unstaked: info[5]
           };
         })
@@ -153,6 +157,23 @@ function Home() {
       openDialog();
     }
   };
+  // 在数据解析部分添加时间戳处理函数
+const parseTimestamp = (bigIntValue) => {
+  try {
+    // 转换为数字并处理秒到毫秒的转换
+    const timestamp = Number(bigIntValue.toString()) * 1000;
+    
+    // 检查有效时间范围（假设合约部署时间在2020年后）
+    if (timestamp < 1609459200000) { // 2021-01-01 00:00:00 UTC
+      return '未质押';
+    }
+    
+    return new Date(timestamp);
+  } catch (error) {
+    console.error('时间戳解析失败:', error);
+    return null;
+  }
+};
   let handleApproveUSD3 = () => { //点击usd3授权按钮
     if (loadingUSD3Auth) return
     console.log('object')
@@ -277,20 +298,35 @@ function Home() {
   }
   let withdraw = async () => {
     try {
-      const result = await stakingContractService.sendMethod('withdraw', localStorage.getItem('account'), [1]) // 参数列表，只传递 poolId)
-      console.log(result)
-      setLoadingWithdraw(loadingWithdraw = false)
-      setDialogTitle(dialogTitle = '成功')
-      setDialogContent(dialogContent = '已经资产提现至您的钱包。')
-
-      openDialog()
+      setLoadingWithdraw(true);
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS,
+        StakingABI,
+        signer
+      );
+      const tx = await contract.withdraw(poolId);
+      
+      await tx.wait(); // 等待交易确认
+      
+      setDialogContent('资产已提现至您的钱包');
+      setDialogVisible(true);
     } catch (err) {
-      console.log(err)
-      setLoadingWithdraw(loadingWithdraw = false)
-      setDialogTitle(dialogTitle = '无法提现')
-      setDialogContent(dialogContent = '尚未取消质押，无法提现。')
-
-      openDialog()
+      console.error('提现失败:', err);
+      
+      // 根据常见错误类型显示友好提示
+      let errorMsg = '提现失败，请重试';
+      if (err.message.includes("not unstaked")) {
+        errorMsg = '尚未取消质押，无法提现';
+      } else if (err.message.includes("insufficient balance")) {
+        errorMsg = '可提现余额不足';
+      }
+      
+      setDialogContent(errorMsg);
+      setDialogVisible(true);
+    } finally {
+      setLoadingWithdraw(false);
     }
   }
 
@@ -368,15 +404,15 @@ function Home() {
                     <div className='font-bold text-1-0 text-red400'>{`节点${item.poolId}`}</div>
                     <div className='text-0-7'>
                       <div className='text-red400'>已质押的PGC</div>
-                      <div> {item.pgcAmount || 0} PGC</div>
+                      <div> {item.pgcAmount } PGC</div>
                     </div>
                     <div className='text-0-7'>
                       <div className='text-red400'>已质押的HAH</div>
-                      <div> {item.whahAmount || 0} HAH</div>
+                      <div> {item.whahAmount } HAH</div>
                     </div>
                     <div className='text-0-7'>
                       <div className='text-red400'>已质押的USD3</div>
-                      <div> {item.usd3Amount || 0} USD3</div>
+                      <div> {item.usd3Amount } USD3</div>
                     </div>
                     <div className={`icon iconfont icon-down text-0-6 duration-500 transition ease-in-out ${item.showMore ? 'rotate-180' : ''}`} onClick={() => handleShowMore(item)}></div>
                   </div>
@@ -425,15 +461,24 @@ function Home() {
                       <div className='text-red400'>我的质押:</div>
                       <div className='text-red200'>1,000,000</div>
                     </div> */}
-                    {item.pgcAmount != 0 && <div className='w-full flex justify-between items-center text-0-8'>
-                      <div className='text-red400'>结束倒计时:</div>
+                   <div className='w-full flex justify-between items-center text-0-8'>
+                      <div className='text-red400'>质押时间:</div>
                       <div className='text-red200 flex justify-end items-center'>
                         <div className='mr-0-2'>
-                          <CountdownTimer targetTimestamp={item.unstakeTimestamp} />
+                        {item.timestamp}
                         </div>
-                        <div className='icon iconfont icon-daojishi'></div>
+                        {/* <div className='icon iconfont icon-daojishi'></div> */}
                       </div>
-                    </div>}
+                    </div>
+                    <div className='w-full flex justify-between items-center text-0-8'>
+                      <div className='text-red400'>解除时间:</div>
+                      <div className='text-red200 flex justify-end items-center'>
+                        <div className='mr-0-2'>
+                        {item.unstakeTimestamp}
+                        </div>
+                        {/* <div className='icon iconfont icon-daojishi'></div> */}
+                      </div>
+                    </div>
                     {item.unstake && <div onClick={() => handleUnStaking(item)} className='w-full h-3-0 flex justify-center items-center bg-red200 text-white rounded-lg mt-1-0' >赎回</div>}
                     {/* <div className='flex justify-end items-center text-red100'>
                       <div className='mr-0-4 text-0-8 font-bold underline'>查看代币信息</div>
