@@ -479,25 +479,8 @@ const parseTimestamp = (bigIntValue) => {
                         {/* <div className='icon iconfont icon-daojishi'></div> */}
                       </div>
                     </div>
-                    {item.unstake && <div onClick={() => handleUnStaking(item)} className='w-full h-3-0 flex justify-center items-center bg-red200 text-white rounded-lg mt-1-0' >赎回</div>}
-                    {/* <div className='flex justify-end items-center text-red100'>
-                      <div className='mr-0-4 text-0-8 font-bold underline'>查看代币信息</div>
-                      <div className='icon iconfont icon-fenxiang'></div>
-                    </div>
-                    <div className='flex justify-end items-center text-red100'>
-                      <div className='mr-0-4 text-0-8 font-bold underline'>查看项目网站</div>
-                      <div className='icon iconfont icon-fenxiang'></div>
-                    </div>
-                    <div className='flex justify-end items-center text-red100 mb-0-4'>
-                      <div className='mr-0-4 text-0-8 font-bold underline'>查看合约</div>
-                      <div className='icon iconfont icon-fenxiang '></div>
-                    </div> */}
-                    {/* <div className='flex justify-start items-center'>
-                      <div className='border border-red200 rounded-full flex justify-start items-center px-0-6 text-red200'>
-                        <div className='icon iconfont icon-shuaxin mr-0-8'></div>
-                        <div className='text-0-8'>手动</div>
-                      </div>
-                    </div> */}
+                    <div onClick={() => handleUnStaking(item)} className='w-full h-3-0 flex justify-center items-center bg-red200 text-white rounded-lg mt-1-0' >赎回</div>
+                    <div onClick={() => handleUnStaking(item)} className='w-full h-3-0 flex justify-center items-center bg-red200 text-white rounded-lg mt-1-0' >提现</div>
                   </div>
                 </div>
               })}
