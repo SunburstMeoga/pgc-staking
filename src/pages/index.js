@@ -85,6 +85,7 @@ function Home() {
         localStorage.getItem('account'),
         process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS
       );
+      console.log('usd3授权状态',result)
       setUSD3Allowance(result > 0);
     };
     const getWHAHAuthStatus = async () => { //获取whah对质押合约的授权状态
@@ -101,6 +102,7 @@ function Home() {
           localStorage.getItem('account'),
           process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS
         );
+        console.log('hah授权状态',result)
         setWHAHAllowance(result > 0);
       } catch (err) {
         console.log(err)
@@ -154,6 +156,7 @@ function Home() {
       );
   
       changeListItems(results);
+      console.log(results)
     } catch (err) {
       console.error('fetch error', err);
       setDialogTitle('数据获取失败');
@@ -187,13 +190,28 @@ const parseTimestamp = (bigIntValue) => {
   let approveUSD3 = async () => { //usd3授权
     try {
       // let result = await USD3ContractService.sendMethod('approve', localStorage.getItem('account'), process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS, ethers.MaxUint256)
-      const result = await stakingContractService.approveUSD3ToStaking(process.env.NEXT_PUBLIC_USD3_CONTRACT_ADDRESS, process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS, ethers.MaxUint256, localStorage.getItem('account'));
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_USD3_CONTRACT_ADDRESS,
+        ERC20ABI,
+        signer
+      );
+      // const userAddress = await contract.signer.getAddress();
+
+      // 发送授权交易
+      const tx = await contract.approve(
+        process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS,
+        ethers.MaxUint256 // 最大授权额度
+      );
+      
+      await tx.wait(); // 等待交易确认
       setUSD3Allowance(USD3Allowance = true)
       setLoadingUSD3Auth(loadingUSD3Auth = false)
       setDialogTitle(dialogTitle = '成功')
       setDialogContent(dialogContent = '已成功授权。')
       openDialog()
-      console.log(result)
+      console.log(tx)
     } catch (err) {
       console.log(err)
       setLoadingUSD3Auth(loadingUSD3Auth = false)
@@ -211,13 +229,28 @@ const parseTimestamp = (bigIntValue) => {
   let approveWHAH = async () => { //whah授权
     try {
       // let result = await WHAHContractService.sendMethod('approve', localStorage.getItem('account'), process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS, ethers.MaxUint256)
-      const result = await stakingContractService.approveUSD3ToStaking(process.env.NEXT_PUBLIC_WHAH_CONTRACT_ADDRESS, process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS, ethers.MaxUint256, localStorage.getItem('account'));
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_WHAH_CONTRACT_ADDRESS,
+        ERC20ABI,
+        signer
+      );
+      // const userAddress = await contract.signer.getAddress();
+
+      // 发送授权交易
+      const tx = await contract.approve(
+        process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS,
+        ethers.MaxUint256 // 最大授权额度
+      );
+      
+      await tx.wait(); // 等待交易确认
       setWHAHAllowance(WHAHAllowance = true)
       setLoadingWHAHAuth(loadingWHAHAuth = false)
       setDialogTitle(dialogTitle = '成功')
       setDialogContent(dialogContent = '已成功授权。')
       openDialog()
-      console.log(result)
+      console.log(tx)
     } catch (err) {
       console.log(err)
       setLoadingWHAHAuth(loadingWHAHAuth = false)
@@ -438,6 +471,12 @@ const parseTimestamp = (bigIntValue) => {
             <div className='text-0-7 mb-1-0'>
               立即参与，享受更多双币质押带来的丰厚奖励与专属权益！
             </div>
+            {!USD3Allowance && <div onClick={() => handleApproveUSD3()} className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2 ' >
+                          {loadingUSD3Auth ? <div className='icon iconfont icon-jiazailoading-A animate-spin' ></div> : 'USD3授权'}
+                        </div>}
+                        {!WHAHAllowance && <div onClick={() => handleApproveWHAH()} className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2'>
+                          {loadingWHAHAuth ? <div className='icon iconfont icon-jiazailoading-A animate-spin'></div> : 'WHAH授权'}
+                        </div>}
           </div>
         </div>
         <div className='bg-white200 w-full flex flex-col justify-center items-center pt-1-8 pb-2-0'>
@@ -489,12 +528,7 @@ const parseTimestamp = (bigIntValue) => {
                             {item.loadingStaking ? <div className='icon iconfont icon-jiazailoading-A animate-spin'></div> : '质押'}
                           </div>
                         }
-                        {!USD3Allowance && <div onClick={() => handleApproveUSD3()} className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2 ' >
-                          {loadingUSD3Auth ? <div className='icon iconfont icon-jiazailoading-A animate-spin' ></div> : 'USD3授权'}
-                        </div>}
-                        {!WHAHAllowance && <div onClick={() => handleApproveWHAH()} className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2'>
-                          {loadingWHAHAuth ? <div className='icon iconfont icon-jiazailoading-A animate-spin'></div> : 'WHAH授权'}
-                        </div>}
+                      
                       </div>
                    <div className='w-full flex justify-between items-center text-0-8'>
                       <div className='text-red400'>质押时间:</div>
