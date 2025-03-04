@@ -143,8 +143,12 @@ function Home() {
             whahAmount: ethers.formatUnits(info[1], 18),
             usd3Amount: ethers.formatUnits(info[2], 18),
             timestamp: timestamp?.toLocaleString('zh-CN') || '未质押',
-              unstakeTimestamp: unstakeTimestamp?.toLocaleString('zh-CN') || '未解押',
-            unstaked: info[5]
+            unstakeTimestamp: unstakeTimestamp?.toLocaleString('zh-CN') || '未解押',
+            unstaked: info[5],
+            loadingStaking: false,
+            loadingUnstaking:false,
+            loadingWithdraw:false,
+            
           };
         })
       );
@@ -222,9 +226,51 @@ const parseTimestamp = (bigIntValue) => {
       openDialog()
     }
   }
-  let staking = async (poolId) => { //质押
+  
+  const handlePGCAmountChange = (e) => { //pgc输入框发生变化
+    console.log(e.target.value)
+    setPGCAmount(e.target.value)
+  }
+  
+  let handleStaking = async (item) => { //点击质押按钮
+    console.log(item)
+    if (pgcAmount % 1000 !== 0) {
+      setDialogContent('质押数量必须为1000的整数倍')
+      setDialogVisible(true)
+      return
+    }
+    const provider = new ethers.BrowserProvider(window.ethereum)
+    const signer = await provider.getSigner()
+    const userAddress = await signer.getAddress()
+    // 创建ERC20合约实例
+    const tokenContract = new ethers.Contract(
+      process.env.NEXT_PUBLIC_WHAH_CONTRACT_ADDRESS,
+      ERC20ABI,
+      signer
+    )
+    const balance = await tokenContract.balanceOf(userAddress)
+    const decimals = await tokenContract.decimals()
+    const formattedBalance = ethers.formatUnits(balance, decimals)
+    console.log('hah余额', formattedBalance)
+    if (formattedBalance < (pgcAmount / 1000)) {
+      setStakingPoolId(item.poolId)
+      setIsStaking(true)
+      setDialogContent(`WHAH余额不足，是否使用${pgcAmount / 1000 * 2}个USD3购买${pgcAmount / 1000}个WHAH进行双币质押？`)
+      setDialogVisible(true)
+      return
+    }
+    setLoadingStaking(loadingStaking = true)
+    staking(item) //质押
+  }
+  let handleUnStaking = (item) => { //点击收割按钮
+    setLoadingUnStaking(loadingUnStaking = true)
+    unstake(item)
+  }
+  let staking = async (item) => { //质押
     setIsStaking(false)
     try {
+    item.loadingStaking = true
+
       const contract = new ethers.Contract(
         process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS,
         StakingABI,
@@ -232,7 +278,7 @@ const parseTimestamp = (bigIntValue) => {
       );
       
       const tx = await contract.stakeInPool(
-        poolId,
+       item.poolId,
         { value: ethers.parseUnits(pgcAmount, 18) }
       );
       await tx.wait();
@@ -241,20 +287,20 @@ const parseTimestamp = (bigIntValue) => {
       setDialogContent(dialogContent = '已成功质押。')
       openDialog()
       fetchNodeList()
+      item.loadingStaking = false
     } catch (err) {
       console.log(err)
       setLoadingStaking(loadingStaking = false)
       setDialogTitle(dialogTitle = '失败')
       setDialogContent(dialogContent = '质押失败，请重试。')
       openDialog()
+      item.loadingStaking = false
+
     }
   }
-  const handlePGCAmountChange = (e) => { //pgc输入框发生变化
-    console.log(e.target.value)
-    setPGCAmount(e.target.value)
-  }
-  let unstake = async (poolId) => { //用户取消质押
+  let unstake = async (item) => { //用户取消质押
     try {
+      item.loadingUnStaking = true
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(
@@ -262,52 +308,61 @@ const parseTimestamp = (bigIntValue) => {
         StakingABI,
         signer
       );
-      const tx = await contract.unstake(poolId);
+      const tx = await contract.unstake(item.poolId);
       
       await tx.wait(); // 等待交易确认
       setLoadingUnStaking(loadingUnStaking = false)
       setDialogTitle(dialogTitle = '成功')
-      setDialogContent(dialogContent = '已成功收割。')
+      setDialogContent(dialogContent = '已成功赎回。')
       openDialog()
-      console.log(result)
-    } catch (err) {
-      console.log(err)
+      item.loadingUnStaking = false
+
+      console.log(tx)
+    } catch (error) {
+      item.loadingUnStaking = false
+      let errorMessage = '操作失败，请重试';
+  let errorTitle = '错误';
+
+  // 解析错误原因
+  if (error.reason) {
+    switch(error.reason) {
+      case 'Already unstaked':
+        errorTitle = '操作无效';
+        errorMessage = '该质押池已解押，无需重复操作';
+        break;
+      case 'Not unstaked':
+        errorTitle = '操作顺序错误';
+        errorMessage = '请先解押后再尝试提现';
+        break;
+      case 'Withdrawal not available':
+        errorTitle = '提现未就绪';
+        errorMessage = '请等待解锁期结束后再提现';
+        break;
+      // 添加更多错误类型...
+      default:
+        errorMessage = `合约错误: ${error.reason}`;
+    }
+  } else if (error.code === 'CALL_EXCEPTION') {
+    // 处理未明确返回reason的错误
+    errorMessage = '合约调用异常，请检查网络状态';
+  } else if (error.code === 'ACTION_REJECTED') {
+    errorTitle = '交易取消';
+    errorMessage = '用户取消了交易签名';
+  }
       setLoadingUnStaking(loadingUnStaking = false)
-      setDialogTitle(dialogTitle = '失败')
-      setDialogContent(dialogContent = '收割失败，您尚未质押PGC')
+      setDialogTitle(errorTitle)
+      setDialogContent(errorMessage)
       openDialog()
     }
-  }
-  let handleStaking = async (item) => { //点击质押按钮
-    console.log(item)
-    if (pgcAmount % 1000 !== 0) {
-      setDialogContent('质押数量必须为1000的整数倍')
-      setDialogVisible(true)
-      return
-    }
-    const result = await WHAHContractService.callMethod('balanceOf', localStorage.getItem('account'))
-    console.log('hah余额', result)
-    if (result < (pgcAmount / 1000)) {
-      setStakingPoolId(item.poolId)
-      setIsStaking(true)
-      setDialogContent(`WHAH余额不足，是否使用${pgcAmount / 1000 * 2}个USD3购买${pgcAmount / 1000}个WHAH进行双币质押？`)
-      setDialogVisible(true)
-      return
-    }
-    setLoadingStaking(loadingStaking = true)
-    staking(item.poolId)
-  }
-  let handleUnStaking = (item) => { //点击收割按钮
-    setLoadingUnStaking(loadingUnStaking = true)
-    unstake(item.poolId)
   }
   let handleWithdraw = (item) => { //点击提现按钮
     setLoadingWithdraw(loadingWithdraw = true)
-    withdraw(item.poolId)
+    withdraw(item)
   }
-  let withdraw = async (poolId) => {
+  let withdraw = async (item) => { //提现函数
     try {
       setLoadingWithdraw(true);
+      item.loadingWithdraw = true
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(
@@ -315,14 +370,17 @@ const parseTimestamp = (bigIntValue) => {
         StakingABI,
         signer
       );
-      const tx = await contract.withdraw(poolId);
+      const tx = await contract.withdraw(item.poolId);
       
       await tx.wait(); // 等待交易确认
       
       setDialogContent('资产已提现至您的钱包');
       setDialogVisible(true);
+      item.loadingWithdraw = false
+      console.log(tx)
     } catch (err) {
       console.error('提现失败:', err);
+      item.loadingWithdraw = false
       
       // 根据常见错误类型显示友好提示
       let errorMsg = '提现失败，请重试';
@@ -380,23 +438,12 @@ const parseTimestamp = (bigIntValue) => {
             <div className='text-0-7 mb-1-0'>
               立即参与，享受更多双币质押带来的丰厚奖励与专属权益！
             </div>
-            {/* <div className='w-full h-3-0 text-white bg-redPrimary flex justify-center items-center rounded-2xl mb-0-6 cursor-pointer' onClick={() => handleWithdraw()}>
-              {loadingWithdraw ? <div className='icon iconfont icon-jiazailoading-A animate-spin'></div> : '提现'}
-            </div> */}
-            {/* <div className='w-full h-3-0 border-2  border-red200 text-red200 flex justify-center items-center rounded-2xl mb-0-6' onClick={() => handleWithdraw()}>
-              {loadingWithdraw ? <div className='icon iconfont icon-jiazailoading-A animate-spin'></div> : '提现USD3'}
-            </div> */}
           </div>
         </div>
         <div className='bg-white200 w-full flex flex-col justify-center items-center pt-1-8 pb-2-0'>
           <div className='flex flex-col justify-center items-center w-23-8 xl:w-full xl:px-18-0'>
             <div className='flex justify-between items-center w-full mb-1-4'>
               <div className='flex justify-start rounded-full bg-white300 border border-white400'>
-                {/* {statusTypeItems.map((item, index) => {
-                  return <div key={index} onClick={() => handleStatusType(item)} className={`px-1-4 py-0-3 text-1-0 ${statusType === item.id ? 'text-white bg-red200 rounded-full' : 'text-red200 bg-transparent'}`}>
-                    {item.title}
-                  </div>
-                })} */}
               </div>
               <div className='flex justify-end items-center text-red400'>
                 {/* <div onClick={() => handleSwitch()} className={`p-0-2 relative w-3-0 h-1-6 rounded-full mr-0-2 duration-500 transition ease-in-out ${switchState ? 'justify-end bg-red100' : 'justify-start bg-white300'}`}>
@@ -426,19 +473,9 @@ const parseTimestamp = (bigIntValue) => {
                     <div className={`icon iconfont icon-down text-0-6 duration-500 transition ease-in-out ${item.showMore ? 'rotate-180' : ''}`} onClick={() => handleShowMore(item)}></div>
                   </div>
                   <div className={`bg-white500 w-full rounded-b-3xl duration-500 transition ease-in-out border border-red20 xl:flex xl:justify-between  ${item.showMore ? 'scale-y-100 h-fit p-1-0' : 'scale-y-0 h-0-1'}`}>
-                    {/* <div className='p-1-0 border border-white300 rounded-2xl mb-1-2 xl:w-32-0'>
-                      <div className='text-0-8 mb-0-6 font-bold'>已赚取PGC</div>
-                      <div className='flex justify-between items-center'>
-                        <div className='text-red400 font-bold text-2-0'>{item.currentRewards}</div>
-                        <div className='bg-red100 text-white rounded-xl px-1-0 py-0-4 cursor-pointer' onClick={() => handleUnStaking(item)}>
-                          {loadingUnStaking ? <div className='icon iconfont icon-jiazailoading-A animate-spin'></div> : '收割'}
-                        </div>
-                      </div>
-                    </div> */}
-                    {/* <div className='w-full flex justify-center items-center bg-red100 h-3-0 rounded-2xl text-white mb-1-2'>连接钱包</div> */}
+                   
 
-                    {
-                      !item.staked && <div className='p-1-0 border border-white300 rounded-2xl mb-1-2 xl:w-32-0'>
+                  <div className='p-1-0 border border-white300 rounded-2xl mb-1-2 xl:w-32-0'>
                         <div className='w-full px-1-0 flex justify-around items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2'>
                           <div className=''>PGC</div>
                           <div className='flex-1 ml-0-2'> <input onChange={handlePGCAmountChange} className='bg-transparent placeholder-text-red100  w-full' placeholder='请输入' /> </div>
@@ -449,7 +486,7 @@ const parseTimestamp = (bigIntValue) => {
                         </div>
                         {
                           USD3Allowance && WHAHAllowance && <div onClick={() => handleStaking(item)} className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2'>
-                            {loadingStaking ? <div className='icon iconfont icon-jiazailoading-A animate-spin'></div> : '质押'}
+                            {item.loadingStaking ? <div className='icon iconfont icon-jiazailoading-A animate-spin'></div> : '质押'}
                           </div>
                         }
                         {!USD3Allowance && <div onClick={() => handleApproveUSD3()} className='w-full flex justify-center items-center text-red100 h-3-0 rounded-2xl border-2 border-red100 mb-1-2 ' >
@@ -459,24 +496,12 @@ const parseTimestamp = (bigIntValue) => {
                           {loadingWHAHAuth ? <div className='icon iconfont icon-jiazailoading-A animate-spin'></div> : 'WHAH授权'}
                         </div>}
                       </div>
-
-                    }
-
-                    {/* <div className='w-full flex justify-between items-center text-0-8'>
-                      <div className='text-red400'>APR:</div>
-                      <div className='text-red200'>32.1%</div>
-                    </div> */}
-                    {/* <div className='w-full flex justify-between items-center text-0-8'>
-                      <div className='text-red400'>我的质押:</div>
-                      <div className='text-red200'>1,000,000</div>
-                    </div> */}
                    <div className='w-full flex justify-between items-center text-0-8'>
                       <div className='text-red400'>质押时间:</div>
                       <div className='text-red200 flex justify-end items-center'>
                         <div className='mr-0-2'>
                         {item.timestamp}
                         </div>
-                        {/* <div className='icon iconfont icon-daojishi'></div> */}
                       </div>
                     </div>
                     <div className='w-full flex justify-between items-center text-0-8'>
@@ -485,11 +510,16 @@ const parseTimestamp = (bigIntValue) => {
                         <div className='mr-0-2'>
                         {item.unstakeTimestamp}
                         </div>
-                        {/* <div className='icon iconfont icon-daojishi'></div> */}
                       </div>
                     </div>
-                    <div onClick={() => handleUnStaking(item)} className='w-full h-3-0 flex justify-center items-center bg-red200 text-white rounded-lg mt-1-0' >赎回</div>
-                    <div onClick={() => handleWithdraw(item)} className='w-full h-3-0 flex justify-center items-center bg-red200 text-white rounded-lg mt-1-0' >提现</div>
+                    <div className='flex w-full justify-between items-center'>
+                      <div onClick={() => handleUnStaking(item)} className='w-full h-3-0 flex justify-center items-center bg-red200 text-white rounded-lg mt-1-0' >
+                      {item.loadingUnStaking ? <div className='icon iconfont icon-jiazailoading-A animate-spin'></div> : '赎回'}
+                      </div>
+                    </div>
+                    <div onClick={() => handleWithdraw(item)} className='w-full h-3-0 flex justify-center items-center bg-red200 text-white rounded-lg mt-1-0' >
+                    {item.loadingWithdraw ? <div className='icon iconfont icon-jiazailoading-A animate-spin'></div> : '提现'}
+                    </div>
                   </div>
                 </div>
               })}
